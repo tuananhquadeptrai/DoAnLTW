@@ -4,52 +4,113 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - VAYTIEN</title>
+    <!-- Google Fonts + Bootstrap Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/VAYTIEN.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-light border-bottom shadow-sm mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold text-primary" asp-controller="Home" asp-action="Index">VAYTIEN</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar"
-                        aria-expanded="false" aria-label="Hiện/Ẩn menu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        <partial name="_LoginPartial" />
-                        @* Nếu không dùng đăng nhập thì có thể xóa dòng trên *@
-                    </ul>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="sidebar col-md-2 d-none d-md-flex flex-column align-items-start px-2 py-4 shadow-sm">
+                <a class="navbar-brand fw-bold text-primary ms-2 mb-4" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-box2-heart-fill me-1 text-danger"></i> VAYTIEN
+                </a>
+                <div class="nav flex-column w-100">
+                    <a class="nav-link active" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-house-door"></i> Dashboard
+                    </a>
+                    <a class="nav-link" asp-controller="Insight" asp-action="Index">
+                        <i class="bi bi-bar-chart-line"></i> Insight
+                    </a>
+                    <a class="nav-link" asp-controller="Invoice" asp-action="Index">
+                        <i class="bi bi-receipt"></i> Invoices
+                    </a>
+                    <a class="nav-link" asp-controller="Product" asp-action="Index">
+                        <i class="bi bi-box"></i> Products
+                    </a>
+                    <a class="nav-link" asp-controller="Inbox" asp-action="Index">
+                        <i class="bi bi-envelope"></i> Inbox
+                    </a>
+                    <a class="nav-link" asp-controller="Team" asp-action="Index">
+                        <i class="bi bi-people"></i> People & Teams
+                    </a>
                 </div>
+                <div class="nav-title">Preferences</div>
+                <div class="nav flex-column w-100">
+                    <a class="nav-link" asp-controller="Settings" asp-action="Index">
+                        <i class="bi bi-gear"></i> Settings
+                    </a>
+                    <a class="nav-link" asp-controller="Help" asp-action="Index">
+                        <i class="bi bi-question-circle"></i> Help Center
+                    </a>
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-moon"></i> Dark Mode
+                    </a>
+                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout"
+                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button id="logout" type="submit" class="nav-link btn btn-link border-0">
+                            <i class="bi bi-box-arrow-left"></i> Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </nav>
+            <!-- Main Content Panel -->
+            <div class="main-panel col-md-10 col-12 px-0">
+                <!-- Header Bar -->
+                <div class="header-bar d-flex align-items-center mb-0">
+                    <div>
+                        <span class="fw-bold" style="font-size:1.34rem;">Welcome back, Marcus <span style="font-size:1.1rem;">👋</span></span>
+                    </div>
+                    <div class="search-bar ms-3 me-2">
+                        <input type="text" class="form-control" placeholder="Tìm kiếm mọi thứ..." />
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 ms-auto">
+                        <button class="btn btn-outline-light position-relative">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:.76rem;">3</span>
+                        </button>
+                        <button class="btn btn-outline-light position-relative">
+                            <i class="bi bi-envelope"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size:.76rem;">5</span>
+                        </button>
+                        <!-- Profile dropdown -->
+                        <div class="dropdown profile-dropdown">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" class="profile-pic dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" />
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle me-2"></i>Thông tin cá nhân</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Cài đặt</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form id="dropdownLogoutForm" asp-area="Identity" asp-page="/Account/Logout"
+                                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button id="dropdownLogout" type="submit" class="dropdown-item text-danger">
+                                            <i class="bi bi-box-arrow-left me-2"></i>Đăng xuất
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main Card -->
+                <div class="main-card">
+                    @RenderBody()
+                </div>
+                <!-- Footer -->
+                <footer class="footer text-center py-3 mt-2">
+                    &copy; 2025 - VAYTIEN - <a href="#">Chính sách bảo mật</a>
+                </footer>
             </div>
-        </nav>
-    </header>
-
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted mt-4 py-3 bg-light">
-        <div class="container text-center">
-            &copy; 2025 - VAYTIEN - <a asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a>
         </div>
-    </footer>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,190 @@
+﻿body {
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: linear-gradient(135deg, #f7faff 0%, #e1e5f9 100%);
+}
+
+.sidebar {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 40%, #e0eaff 100%);
+    border-right: 2px solid #e6e6f0;
+    box-shadow: 0 4px 30px rgba(120,160,255,0.07);
+    padding: 40px 18px 24px 18px;
+    position: relative;
+}
+
+    .sidebar .navbar-brand {
+        font-size: 1.55rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .sidebar .nav-link {
+        color: #6c7aad;
+        font-weight: 600;
+        border-radius: 15px;
+        padding: 13px 18px;
+        margin-bottom: 7px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        transition: background .18s, color .16s, box-shadow .14s;
+        font-size: 1.07rem;
+    }
+
+        .sidebar .nav-link.active, .sidebar .nav-link:hover, .sidebar .nav-link:focus {
+            background: linear-gradient(90deg, #e0eaff 60%, #c2e9fb 100%);
+            color: #007aff;
+            box-shadow: 0 2px 12px rgba(133,193,233,0.09);
+        }
+
+        .sidebar .nav-link i {
+            font-size: 1.28rem;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px #d6e4ff1e;
+            padding: 6px;
+        }
+
+    .sidebar .nav-title {
+        text-transform: uppercase;
+        font-size: .85rem;
+        font-weight: bold;
+        color: #a2a9bc;
+        letter-spacing: 1.5px;
+        margin: 34px 0 11px 18px;
+    }
+
+    .sidebar .btn-link.nav-link {
+        color: #e74c3c;
+        font-weight: 700;
+    }
+
+        .sidebar .btn-link.nav-link:hover {
+            background: #ffe0e3;
+            color: #c0392b;
+        }
+
+    .sidebar form {
+        width: 100%;
+    }
+
+.main-panel {
+    background: transparent;
+    min-height: 100vh;
+}
+
+.header-bar {
+    background: #181a20;
+    color: #fff;
+    border-radius: 1.6rem 1.6rem 0 0;
+    padding: 18px 40px 12px 40px;
+    margin: 0 -32px 20px -32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    box-shadow: 0 6px 40px rgba(60,80,140,0.11);
+}
+
+    .header-bar .search-bar {
+        max-width: 380px;
+        min-width: 170px;
+        width: 100%;
+        position: relative;
+        flex: 1 1 300px;
+    }
+
+        .header-bar .search-bar input {
+            border-radius: 18px;
+            border: none;
+            padding: 10px 46px 10px 22px;
+            background: #23263a;
+            color: #fff;
+            font-size: 1.12rem;
+            box-shadow: 0 2px 12px #4441;
+        }
+
+        .header-bar .search-bar .bi-search {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #b8c4db;
+            font-size: 1.23rem;
+        }
+
+    .header-bar .profile-dropdown {
+        position: relative;
+    }
+
+    .header-bar .profile-pic {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ffd36b;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .header-bar .dropdown-menu {
+        right: 0;
+        left: auto;
+        min-width: 160px;
+        border-radius: 1rem;
+        box-shadow: 0 8px 32px #2223;
+        font-size: 1rem;
+    }
+
+.main-card {
+    background: #fff;
+    border-radius: 2.1rem;
+    box-shadow: 0 8px 32px rgba(80,80,120,0.13);
+    padding: 35px 32px 24px 32px;
+    margin-top: 26px;
+}
+
+.footer {
+    background: transparent;
+    color: #888;
+    font-size: 1.01rem;
+}
+
+@media (max-width: 991.98px) {
+    .main-card {
+        padding: 14px 5px 12px 5px;
+        border-radius: 1.25rem;
+    }
+
+    .header-bar {
+        padding: 13px 12px 8px 12px;
+        border-radius: 1rem 1rem 0 0;
+        margin: 0 -7px 12px -7px;
+    }
+
+    .sidebar {
+        padding: 19px 4px 9px 4px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        min-width: 55px;
+        padding: 10px 2px;
+    }
+
+        .sidebar .nav-link {
+            padding: 7px 7px;
+            font-size: 1rem;
+        }
+
+    .main-card {
+        padding: 6px 2px 4px 2px;
+        border-radius: 0.7rem;
+    }
+
+    .header-bar {
+        padding: 7px 5px 5px 7px;
+    }
+}
