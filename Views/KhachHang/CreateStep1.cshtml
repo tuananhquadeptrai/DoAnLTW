@@ -1,0 +1,75 @@
+﻿@model VAYTIEN.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Đăng ký vay tiền - Bước 1";
+}
+
+<h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form asp-action="CreateStep1" method="post" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="HoTen" class="form-label">Họ và tên</label>
+                    <input asp-for="HoTen" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CmndCccd" class="form-label">CMND/CCCD</label>
+                    <input asp-for="CmndCccd" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="NgaySinh" class="form-label">Ngày sinh</label>
+                    <input asp-for="NgaySinh" class="form-control" type="date" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DiaChi" class="form-label">Địa chỉ</label>
+                    <input asp-for="DiaChi" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Sdt" class="form-label">Số điện thoại</label>
+                    <input asp-for="Sdt" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" type="email" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="NgheNghiep" class="form-label">Nghề nghiệp</label>
+                    <input asp-for="NgheNghiep" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TinhTrangHonNhan" class="form-label">Tình trạng hôn nhân</label>
+                    <select asp-for="TinhTrangHonNhan" class="form-select">
+                        <option value="">-- Chọn --</option>
+                        <option value="Độc thân">Độc thân</option>
+                        <option value="Đã kết hôn">Đã kết hôn</option>
+                        <option value="Ly hôn">Ly hôn</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ảnh đính kèm (CMND/CCCD, chân dung...)</label>
+                <input type="file" name="anhFile" class="form-control" accept="image/*" />
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary px-5">Tiếp tục</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

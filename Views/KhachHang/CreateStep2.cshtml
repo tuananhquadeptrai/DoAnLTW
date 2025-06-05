@@ -1,0 +1,43 @@
+﻿@model VAYTIEN.Models.HopDongVay
+@{
+    var loaiVayList = ViewBag.LoaiVayList as List<VAYTIEN.Models.LoaiVay>;
+    var loaiTienList = ViewBag.LoaiTienTeList as List<VAYTIEN.Models.LoaiTienTe>;
+}
+
+<form asp-action="CreateStep2" method="post">
+    <div class="mb-3">
+        <label>Loại vay</label>
+        <select asp-for="MaLoaiVay" class="form-select">
+            @foreach (var item in loaiVayList!)
+            {
+                <option value="@item.MaLoaiVay">@item.TenLoaiVay</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Loại tiền</label>
+        <select asp-for="MaLoaiTienTe" class="form-select">
+            @foreach (var item in loaiTienList!)
+            {
+                <option value="@item.MaLoaiTienTe">@item.TenLoaiTienTe</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Số tiền vay</label>
+        <input asp-for="SoTienVay" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Hình thức trả</label>
+        <input asp-for="HinhThucTra" class="form-control" />
+    </div>
+
+    <h5>Tài sản thế chấp</h5>
+    <div class="mb-3">
+        <input name="TenTaiSan" placeholder="Tên tài sản" class="form-control" />
+        <input name="GiaTri" placeholder="Giá trị" class="form-control mt-2" />
+        <textarea name="MoTa" placeholder="Mô tả" class="form-control mt-2"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Gửi yêu cầu phê duyệt</button>
+</form>

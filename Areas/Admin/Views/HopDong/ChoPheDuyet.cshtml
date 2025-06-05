@@ -1,0 +1,38 @@
+﻿@model IEnumerable<VAYTIEN.Models.HopDongVay>
+
+@{
+    ViewData["Title"] = "Phê duyệt hợp đồng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h3 class="mb-4">Danh sách yêu cầu vay đang chờ phê duyệt</h3>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark text-center">
+        <tr>
+            <th>Mã HĐ</th>
+            <th>Khách hàng</th>
+            <th>Số tiền vay</th>
+            <th>Hình thức trả</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hd in Model)
+        {
+            <tr>
+                <td class="text-center">@hd.MaHopDong</td>
+                <td>@hd.MaKhNavigation?.HoTen</td>
+                <td>@($"{hd.SoTienVay:N0}")</td>
+                <td>@hd.HinhThucTra</td>
+                <td>@hd.TinhTrang</td>
+                <td class="text-center">
+                    <form asp-action="PheDuyet" method="post" asp-route-id="@hd.MaHopDong" style="display:inline;">
+                        <button type="submit" class="btn btn-success btn-sm">Duyệt</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

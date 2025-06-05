@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-image: url('/images/bg.png');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed; 
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 class="display-4">Chào mừng đến với hệ thống vay tiền online</h1>
+        <p class="lead">Nhanh chóng, tiện lợi và an toàn cho mọi khách hàng</p>
+        <a class="btn btn-primary btn-lg mt-4" asp-controller="KhachHang" asp-action="CreateStep1">Đăng ký vay ngay</a>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Thủ tục đơn giản</h5>
+                    <p class="card-text">Chỉ cần cung cấp thông tin cơ bản và giấy tờ tuỳ thân để đăng ký.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Giải ngân nhanh</h5>
+                    <p class="card-text">Xét duyệt nhanh chóng, tiền về tài khoản trong ngày.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Bảo mật thông tin</h5>
+                    <p class="card-text">Thông tin của bạn được cam kết bảo mật tuyệt đối.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
