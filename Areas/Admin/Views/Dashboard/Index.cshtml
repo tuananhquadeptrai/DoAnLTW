@@ -1,18 +1,23 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="mb-4 fw-bold text-primary text-center">Chào mừng, Quản trị viên</h2>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
+<h2 class="mb-4 fw-bold text-primary text-center" style="font-family:'Montserrat',Arial,sans-serif;">Chào mừng, Quản trị viên</h2>
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
     <div class="col">
-        <div class="card border-0 shadow-lg h-100">
+        <div class="card dashboard-card h-100">
             <div class="card-body text-center">
-                <i class="bi bi-hourglass-split fs-1 text-warning"></i>
-                <h5 class="card-title mt-2">Yêu cầu chờ phê duyệt</h5>
-                <p class="fs-3 fw-semibold">@ViewBag.TotalPending</p>
-                <a asp-area="Admin" asp-controller="HopDong" asp-action="ChoPheDuyet" class="btn btn-light btn-sm mt-2">
+                <div class="dashboard-icon-bg">
+                    <i class="bi bi-hourglass-split fs-1 text-warning"></i>
+                </div>
+                <div class="dashboard-card-title">Yêu cầu chờ phê duyệt</div>
+                <div class="dashboard-card-value">@ViewBag.TotalPending</div>
+                <a asp-area="Admin" asp-controller="HopDong" asp-action="ChoPheDuyet" class="dashboard-btn btn btn-light btn-sm">
                     Phê duyệt hợp đồng
                 </a>
             </div>
@@ -20,23 +25,31 @@
     </div>
 
     <div class="col">
-        <div class="card border-0 shadow-lg h-100">
+        <div class="card dashboard-card h-100">
             <div class="card-body text-center">
-                <i class="bi bi-person-check fs-1 text-info"></i>
-                <h5 class="card-title mt-2">Tài khoản khách hàng</h5>
-                <p class="fs-3 fw-semibold">@ViewBag.TotalCustomers</p>
-                <a asp-area="Admin" asp-controller="KhachHang" asp-action="Index" class="btn btn-outline-info">Quản lý tài khoản</a>
+                <div class="dashboard-icon-bg info">
+                    <i class="bi bi-person-check fs-1 text-info"></i>
+                </div>
+                <div class="dashboard-card-title">Tài khoản khách hàng</div>
+                <div class="dashboard-card-value">@ViewBag.TotalCustomers</div>
+                <a asp-area="Admin" asp-controller="KhachHang" asp-action="Index" class="dashboard-btn btn btn-outline-info">
+                    Quản lý tài khoản
+                </a>
             </div>
         </div>
     </div>
 
     <div class="col">
-        <div class="card border-0 shadow-lg h-100">
+        <div class="card dashboard-card h-100">
             <div class="card-body text-center">
-                <i class="bi bi-file-earmark-text fs-1 text-success"></i>
-                <h5 class="card-title mt-2">Tổng hợp đồng vay</h5>
-                <p class="fs-3 fw-semibold">@ViewBag.TotalContracts</p>
-                <a asp-area="Admin" asp-controller="HopDong" asp-action="Index" class="btn btn-outline-success">Xem tất cả hợp đồng</a>
+                <div class="dashboard-icon-bg success">
+                    <i class="bi bi-file-earmark-text fs-1 text-success"></i>
+                </div>
+                <div class="dashboard-card-title">Tổng hợp đồng vay</div>
+                <div class="dashboard-card-value">@ViewBag.TotalContracts</div>
+                <a asp-area="Admin" asp-controller="HopDong" asp-action="Index" class="dashboard-btn btn btn-outline-success">
+                    Xem tất cả hợp đồng
+                </a>
             </div>
         </div>
     </div>
