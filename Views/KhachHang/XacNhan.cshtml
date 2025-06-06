@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Gửi yêu cầu thành công";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="card shadow-lg border-0 p-5 text-center" style="max-width: 600px;">
+        <div class="mb-4">
+            <i class="fas fa-check-circle fa-4x text-success"></i>
+        </div>
+        <h2 class="text-success mb-3">Gửi yêu cầu vay vốn thành công!</h2>
+        <p class="mb-4">
+            🎉 Hệ thống đã ghi nhận thông tin của bạn.<br />
+            Yêu cầu sẽ được <strong>phê duyệt trong thời gian sớm nhất</strong>.
+        </p>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary px-4">Quay về Trang chủ</a>
+    </div>
+</div>

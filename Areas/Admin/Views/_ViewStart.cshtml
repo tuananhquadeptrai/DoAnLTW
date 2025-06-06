@@ -1,3 +1,7 @@
 ﻿@{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
+@{
+    var context = Context.RequestServices.GetService(typeof(VAYTIEN.Models.QlvayTienContext)) as VAYTIEN.Models.QlvayTienContext;
+    ViewBag.SoYeuCau = context?.HopDongVays.Count(h => h.TinhTrang == "Chờ phê duyệt") ?? 0;
+}

@@ -12,7 +12,7 @@ using VAYTIEN.Models;
 namespace VAYTIEN.Migrations
 {
     [DbContext(typeof(QlvayTienContext))]
-    [Migration("20250605030217_InitModels")]
+    [Migration("20250605085145_InitModels")]
     partial class InitModels
     {
         /// <inheritdoc />
@@ -373,6 +373,9 @@ namespace VAYTIEN.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaKh"));
+
+                    b.Property<string>("AnhDinhKem")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CmndCccd")
                         .HasColumnType("nvarchar(max)");

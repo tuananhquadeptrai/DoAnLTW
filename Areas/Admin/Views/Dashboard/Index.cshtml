@@ -32,7 +32,7 @@
                 </div>
                 <div class="dashboard-card-title">Tài khoản khách hàng</div>
                 <div class="dashboard-card-value">@ViewBag.TotalCustomers</div>
-                <a asp-area="Admin" asp-controller="KhachHang" asp-action="Index" class="dashboard-btn btn btn-outline-info">
+                <a asp-area="Admin" asp-controller="Account" asp-action="Index" class="dashboard-btn btn btn-outline-info">
                     Quản lý tài khoản
                 </a>
             </div>
@@ -47,7 +47,7 @@
                 </div>
                 <div class="dashboard-card-title">Tổng hợp đồng vay</div>
                 <div class="dashboard-card-value">@ViewBag.TotalContracts</div>
-                <a asp-area="Admin" asp-controller="HopDong" asp-action="Index" class="dashboard-btn btn btn-outline-success">
+                <a asp-area="Admin" asp-controller="HopDong" asp-action="TongHopDong" class="dashboard-btn btn btn-outline-success">
                     Xem tất cả hợp đồng
                 </a>
             </div>

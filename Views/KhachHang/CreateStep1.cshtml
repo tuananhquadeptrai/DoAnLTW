@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Đăng ký vay tiền - Bước 1";
+    var doiTuongList = ViewBag.DoiTuongVayList as List<VAYTIEN.Models.DoiTuongVay>;
 }
 
 <h2 class="text-center mb-4">@ViewData["Title"]</h2>
@@ -57,6 +58,25 @@
                     </select>
                 </div>
             </div>
+
+            <div class="mb-3">
+                <label class="form-label">Đối tượng vay</label>
+                <select name="DoiTuongVayMaDoiTuongVay" class="form-select">
+                    <option value="">-- Chọn đối tượng vay --</option>
+                    @foreach (var item in doiTuongList)
+                    {
+                        var selected = Model?.DoiTuongVayMaDoiTuongVay == item.MaDoiTuongVay ? "selected" : "";
+                        @:<option value="@item.MaDoiTuongVay" @selected>@item.TenDoiTuong</option>
+                    }
+                </select>
+                <span asp-validation-for="DoiTuongVayMaDoiTuongVay" class="text-danger"></span>
+            </div>
+
+
+
+
+
+
 
             <div class="mb-3">
                 <label class="form-label">Ảnh đính kèm (CMND/CCCD, chân dung...)</label>

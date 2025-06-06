@@ -22,6 +22,8 @@ public partial class KhachHang
     public string? NgheNghiep { get; set; }
 
     public string? TinhTrangHonNhan { get; set; }
+    public int? DoiTuongVayMaDoiTuongVay { get; set; }
+
 
     // ✅ Thêm trường ảnh đính kèm
     public string? AnhDinhKem { get; set; }

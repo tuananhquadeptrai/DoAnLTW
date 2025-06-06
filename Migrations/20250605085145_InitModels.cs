@@ -83,7 +83,8 @@ namespace VAYTIEN.Migrations
                     Sdt = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NgheNghiep = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TinhTrangHonNhan = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    TinhTrangHonNhan = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AnhDinhKem = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

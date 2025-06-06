@@ -267,6 +267,27 @@ namespace VAYTIEN.Migrations
                     b.ToTable("ChiNhanhNganHang", (string)null);
                 });
 
+            modelBuilder.Entity("VAYTIEN.Models.DoiTuongVay", b =>
+                {
+                    b.Property<int>("MaDoiTuongVay")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaDoiTuongVay"));
+
+                    b.Property<decimal>("LaiSuat")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("TenDoiTuong")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("MaDoiTuongVay");
+
+                    b.ToTable("DoiTuongVays");
+                });
+
             modelBuilder.Entity("VAYTIEN.Models.GiaoDich", b =>
                 {
                     b.Property<int>("MaGiaoDich")
@@ -380,6 +401,9 @@ namespace VAYTIEN.Migrations
                     b.Property<string>("DiaChi")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("DoiTuongVayMaDoiTuongVay")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -399,6 +423,8 @@ namespace VAYTIEN.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MaKh");
+
+                    b.HasIndex("DoiTuongVayMaDoiTuongVay");
 
                     b.ToTable("KhachHang", (string)null);
                 });
@@ -699,6 +725,13 @@ namespace VAYTIEN.Migrations
                     b.Navigation("MaNvNavigation");
                 });
 
+            modelBuilder.Entity("VAYTIEN.Models.KhachHang", b =>
+                {
+                    b.HasOne("VAYTIEN.Models.DoiTuongVay", null)
+                        .WithMany("KhachHangs")
+                        .HasForeignKey("DoiTuongVayMaDoiTuongVay");
+                });
+
             modelBuilder.Entity("VAYTIEN.Models.LichTraNo", b =>
                 {
                     b.HasOne("VAYTIEN.Models.HopDongVay", "MaHopDongNavigation")
@@ -747,6 +780,11 @@ namespace VAYTIEN.Migrations
             modelBuilder.Entity("VAYTIEN.Models.ChiNhanhNganHang", b =>
                 {
                     b.Navigation("NhanViens");
+                });
+
+            modelBuilder.Entity("VAYTIEN.Models.DoiTuongVay", b =>
+                {
+                    b.Navigation("KhachHangs");
                 });
 
             modelBuilder.Entity("VAYTIEN.Models.HopDongVay", b =>

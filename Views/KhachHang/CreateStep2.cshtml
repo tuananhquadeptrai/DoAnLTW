@@ -1,4 +1,5 @@
 ﻿@model VAYTIEN.Models.HopDongVay
+
 @{
     var loaiVayList = ViewBag.LoaiVayList as List<VAYTIEN.Models.LoaiVay>;
     var loaiTienList = ViewBag.LoaiTienTeList as List<VAYTIEN.Models.LoaiTienTe>;
@@ -14,6 +15,7 @@
             }
         </select>
     </div>
+
     <div class="mb-3">
         <label>Loại tiền</label>
         <select asp-for="MaLoaiTienTe" class="form-select">
@@ -23,13 +25,27 @@
             }
         </select>
     </div>
+
     <div class="mb-3">
         <label>Số tiền vay</label>
-        <input asp-for="SoTienVay" class="form-control" />
+        <select asp-for="SoTienVay" class="form-select">
+            <option value="">-- Chọn hạn mức --</option>
+            <option value="10000000">10 triệu</option>
+            <option value="20000000">20 triệu</option>
+            <option value="30000000">30 triệu</option>
+            <option value="50000000">50 triệu</option>
+            <option value="100000000">100 triệu</option>
+        </select>
     </div>
+
     <div class="mb-3">
         <label>Hình thức trả</label>
-        <input asp-for="HinhThucTra" class="form-control" />
+        <select name="HinhThucTra" class="form-select">
+            <option value="">-- Chọn hình thức trả --</option>
+            <option value="Trả góp hàng tháng">Trả góp hàng tháng</option>
+            <option value="Trả một lần cuối kỳ">Trả một lần cuối kỳ</option>
+            <option value="Trả gốc định kỳ, lãi hàng tháng">Trả gốc định kỳ, lãi hàng tháng</option>
+        </select>
     </div>
 
     <h5>Tài sản thế chấp</h5>

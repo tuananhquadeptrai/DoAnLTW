@@ -1,0 +1,33 @@
+﻿@model IEnumerable<VAYTIEN.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Tài khoản khách hàng";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Số điện thoại</th>
+            <th>CCCD</th>
+            <th>Địa chỉ</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>@user.PhoneNumber</td>
+                <td>@user.CCCD</td>
+                <td>@user.Address</td>
+                <td>Hoạt động</td>
+            </tr>
+        }
+    </tbody>
+</table>

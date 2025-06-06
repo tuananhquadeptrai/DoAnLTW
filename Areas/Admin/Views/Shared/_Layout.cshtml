@@ -73,12 +73,19 @@
                     <div class="d-flex align-items-center gap-3 ms-auto">
                         <button class="btn btn-outline-light position-relative">
                             <i class="bi bi-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:.76rem;">3</span>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:.76rem;">
+                                @((ViewBag.SoYeuCau ?? 0))
+                            </span>
+                            </span>
                         </button>
-                        <button class="btn btn-outline-light position-relative">
+
+                        <a href="/Admin/HopDong/DaGuiEmail" class="btn btn-outline-light position-relative">
                             <i class="bi bi-envelope"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size:.76rem;">5</span>
-                        </button>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size:.76rem;">
+                                @((ViewBag.SoHopDongGui ?? 0))
+                            </span>
+                        </a>
+
                         <!-- Profile dropdown -->
                         <div class="dropdown profile-dropdown">
                             <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" class="profile-pic dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" />

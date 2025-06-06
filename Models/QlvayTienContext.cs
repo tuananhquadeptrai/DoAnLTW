@@ -26,6 +26,8 @@ public partial class QlvayTienContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<LichTraNo> LichTraNos { get; set; }
     public virtual DbSet<LoaiTienTe> LoaiTienTes { get; set; }
     public virtual DbSet<LoaiVay> LoaiVays { get; set; }
+    public DbSet<DoiTuongVay> DoiTuongVays { get; set; }
+
     public virtual DbSet<NhanVien> NhanViens { get; set; }
     public virtual DbSet<TaiKhoanNganHang> TaiKhoanNganHangs { get; set; }
     public virtual DbSet<TaiSanTheChap> TaiSanTheChaps { get; set; }
@@ -55,7 +57,14 @@ public partial class QlvayTienContext : IdentityDbContext<ApplicationUser>
         {
             entity.ToTable("HopDongVay");
             entity.HasKey(e => e.MaHopDong);
+
+            entity.HasOne(h => h.MaKhNavigation)
+                .WithMany(kh => kh.HopDongVays)
+                .HasForeignKey(h => h.MaKh)
+                .HasConstraintName("FK_HopDongVay_KhachHang")
+                .OnDelete(DeleteBehavior.Restrict);
         });
+
 
         modelBuilder.Entity<KhachHang>(entity =>
         {

@@ -1,0 +1,65 @@
+﻿@model List<VAYTIEN.Models.HopDongVay>
+
+@{
+    ViewData["Title"] = "Tổng hợp hợp đồng vay";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <h2 class="text-center mb-4 text-primary fw-bold">@ViewData["Title"]</h2>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-primary text-center">
+                <tr>
+                    <th>#</th>
+                    <th>Khách hàng</th>
+                    <th>Loại vay</th>
+                    <th>Tiền tệ</th>
+                    <th>Số tiền vay</th>
+                    <th>Lãi suất (%)</th>
+                    <th>Hình thức trả</th>
+                    <th>Ngày vay</th>
+                    <th>Hết hạn</th>
+                    <th>Nhân viên</th>
+                    <th>Tình trạng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var hd = Model[i];
+                    <tr>
+                        <td class="text-center fw-bold">@(@i + 1)</td>
+                        <td>@hd.MaKhNavigation?.HoTen</td>
+                        <td>@hd.MaLoaiVayNavigation?.TenLoaiVay</td>
+                        <td>@hd.MaLoaiTienTeNavigation?.TenLoaiTienTe</td>
+                        <td>@hd.SoTienVay?.ToString("N0") đ</td>
+                        <td class="text-center">@hd.LaiSuat?.ToString("0.##")</td>
+                        <td>@hd.HinhThucTra</td>
+                        <td>@hd.NgayVay?.ToString("dd/MM/yyyy")</td>
+                        <td>@hd.NgayHetHan?.ToString("dd/MM/yyyy")</td>
+                        <td>@hd.MaNvNavigation?.TenNv</td>
+                        <td>
+                            @switch (hd.TinhTrang)
+                            {
+                                case "Chờ phê duyệt":
+                                    <span class="badge bg-warning text-dark">Chờ phê duyệt</span>
+                                    ;
+                                    break;
+                                case "Đã duyệt":
+                                    <span class="badge bg-success">Đã duyệt</span>
+                                    ;
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@hd.TinhTrang</span>
+                                    ;
+                                    break;
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using VAYTIEN.Models;
 using Microsoft.Extensions.DependencyInjection;
+using VAYTIEN.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Cấu hình DbContext và Identity
@@ -18,10 +19,19 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 
 // Đăng ký RoleManager vào DI container
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "VayTienSession"; // tên cookie
+    options.ExpireTimeSpan = TimeSpan.FromHours(1); // hết hạn sau 1 giờ
+    options.SlidingExpiration = false; // không kéo dài khi sử dụng
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddScoped<PdfGenerator>();
+builder.Services.AddScoped<EmailSender>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -34,7 +44,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseForceLogoutOnStartup();
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -5,9 +5,25 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h3 class="mb-4">Danh sách yêu cầu vay đang chờ phê duyệt</h3>
+<h3 class="mb-4">📄 Danh sách yêu cầu vay đang chờ phê duyệt</h3>
 
-<table class="table table-bordered table-striped">
+<!-- Thông báo kết quả -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-times-circle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<table class="table table-bordered table-hover">
     <thead class="table-dark text-center">
         <tr>
             <th>Mã HĐ</th>
@@ -23,13 +39,23 @@
         {
             <tr>
                 <td class="text-center">@hd.MaHopDong</td>
-                <td>@hd.MaKhNavigation?.HoTen</td>
-                <td>@($"{hd.SoTienVay:N0}")</td>
+                <td>
+                    HoTen: @(hd.MaKhNavigation?.HoTen ?? "null")
+                </td>
+
+                <td class="text-end">@($"{hd.SoTienVay:N0}")</td>
                 <td>@hd.HinhThucTra</td>
-                <td>@hd.TinhTrang</td>
+                <td class="text-center">@hd.TinhTrang</td>
                 <td class="text-center">
-                    <form asp-action="PheDuyet" method="post" asp-route-id="@hd.MaHopDong" style="display:inline;">
-                        <button type="submit" class="btn btn-success btn-sm">Duyệt</button>
+                    <form asp-action="PheDuyet" method="post" asp-route-id="@hd.MaHopDong" class="d-inline">
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-check"></i> Duyệt
+                        </button>
+                    </form>
+                    <form asp-action="TuChoi" method="post" asp-route-id="@hd.MaHopDong" class="d-inline ms-1">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-times"></i> Từ chối
+                        </button>
                     </form>
                 </td>
             </tr>
