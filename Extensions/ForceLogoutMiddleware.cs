@@ -1,3 +1,4 @@
+
 ﻿using Microsoft.AspNetCore.Identity;
 using VAYTIEN.Models;
 
@@ -18,7 +19,8 @@ public class ForceLogoutMiddleware
             await signInManager.SignOutAsync();
         }
 
-        IsFirstStartup = false; 
+        IsFirstStartup = false; // Chỉ force logout đúng 1 lần sau khi khởi động lại
         await _next(context);
     }
 }
+
