@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VAYTIEN.Models;
 
@@ -11,9 +12,11 @@ using VAYTIEN.Models;
 namespace VAYTIEN.Migrations
 {
     [DbContext(typeof(QlvayTienContext))]
-    partial class QlvayTienContextModelSnapshot : ModelSnapshot
+    [Migration("20250606173145_InitModels")]
+    partial class InitModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
