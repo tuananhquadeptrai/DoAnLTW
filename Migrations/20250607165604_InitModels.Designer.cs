@@ -12,8 +12,8 @@ using VAYTIEN.Models;
 namespace VAYTIEN.Migrations
 {
     [DbContext(typeof(QlvayTienContext))]
-    [Migration("20250605085404_AddDoiTuongVayModel")]
-    partial class AddDoiTuongVayModel
+    [Migration("20250607165604_InitModels")]
+    partial class InitModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -341,9 +341,6 @@ namespace VAYTIEN.Migrations
                     b.Property<int?>("MaKh")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MaKhNavigationMaKh")
-                        .HasColumnType("int");
-
                     b.Property<int?>("MaLoaiTienTe")
                         .HasColumnType("int");
 
@@ -376,7 +373,7 @@ namespace VAYTIEN.Migrations
 
                     b.HasKey("MaHopDong");
 
-                    b.HasIndex("MaKhNavigationMaKh");
+                    b.HasIndex("MaKh");
 
                     b.HasIndex("MaLoaiTienTeNavigationMaLoaiTienTe");
 
@@ -705,7 +702,9 @@ namespace VAYTIEN.Migrations
                 {
                     b.HasOne("VAYTIEN.Models.KhachHang", "MaKhNavigation")
                         .WithMany("HopDongVays")
-                        .HasForeignKey("MaKhNavigationMaKh");
+                        .HasForeignKey("MaKh")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_HopDongVay_KhachHang");
 
                     b.HasOne("VAYTIEN.Models.LoaiTienTe", "MaLoaiTienTeNavigation")
                         .WithMany("HopDongVays")
