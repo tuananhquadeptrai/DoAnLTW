@@ -18,7 +18,7 @@ public class ForceLogoutMiddleware
             await signInManager.SignOutAsync();
         }
 
-        IsFirstStartup = false; // Chỉ force logout đúng 1 lần sau khi khởi động lại
+        IsFirstStartup = false; 
         await _next(context);
     }
 }
