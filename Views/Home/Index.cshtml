@@ -2,53 +2,127 @@
     ViewData["Title"] = "Trang chủ";
 }
 
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="border-bottom: 2px solid #195d9a;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/" style="color: #195d9a; font-size: 1.5rem;">
+            <img src="/images/logo-bank.png" alt="Logo" height="38" class="me-2" style="vertical-align: baseline;" />
+            Vay Tài Chính 24/7
+        </a>
+        <div>
+            <a class="btn btn-outline-primary ms-2" asp-controller="KhachHang" asp-action="CreateStep1">Đăng ký vay</a>
+            <a class="btn btn-outline-secondary ms-2" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+        </div>
+    </div>
+</nav>
+
 <style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
+    :root {
+        --main-blue: #195d9a;
+        --main-blue-hover: #114271;
+        --card-shadow: 0 4px 16px rgba(25,93,154,0.09);
+        --card-radius: 18px;
+        --background-blur: rgba(255,255,255,0.94);
     }
 
     body {
-        background-image: url('/images/bg.png');
+        background-image: url('/images/bg-bank.jpg');
         background-size: cover;
         background-repeat: no-repeat;
-        background-position: center;
-        background-attachment: fixed; 
+        background-attachment: fixed;
+        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
     }
+
+    .bank-overlay {
+        background: var(--background-blur);
+        border-radius: 18px;
+        box-shadow: 0 12px 24px rgba(25,93,154,0.07);
+        padding: 40px 32px 32px 32px;
+        margin-top: 48px;
+        margin-bottom: 48px;
+    }
+
+    .bank-card {
+        border: none;
+        border-radius: var(--card-radius);
+        box-shadow: var(--card-shadow);
+        transition: transform 0.17s;
+        background: #fff;
+        min-height: 210px;
+    }
+
+        .bank-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 8px 32px rgba(25,93,154,0.15);
+        }
+
+    .bank-icon {
+        font-size: 2.3rem;
+        color: var(--main-blue);
+        margin-bottom: 8px;
+    }
+
+    .btn-primary {
+        background: var(--main-blue);
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+        .btn-primary:hover {
+            background: var(--main-blue-hover);
+        }
 </style>
 
-<div class="container mt-5">
-    <div class="text-center">
-        <h1 class="display-4">Chào mừng đến với hệ thống vay tiền online</h1>
-        <p class="lead">Nhanh chóng, tiện lợi và an toàn cho mọi khách hàng</p>
-        <a class="btn btn-primary btn-lg mt-4" asp-controller="KhachHang" asp-action="CreateStep1">Đăng ký vay ngay</a>
-    </div>
-
-    <div class="row mt-5">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Thủ tục đơn giản</h5>
-                    <p class="card-text">Chỉ cần cung cấp thông tin cơ bản và giấy tờ tuỳ thân để đăng ký.</p>
+<div class="container">
+    <div class="bank-overlay">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold" style="color: #195d9a;">Chào mừng đến với Vay Tài Chính 24/7</h1>
+            <p class="lead mt-3" style="color: #12385a;">Giải pháp tài chính an toàn – Nhanh chóng – Bảo mật như ngân hàng!</p>
+            <a class="btn btn-primary btn-lg mt-3 px-5" asp-controller="KhachHang" asp-action="CreateStep1">
+                Đăng ký vay ngay
+            </a>
+        </div>
+        <div class="row mt-4 gy-4">
+            <div class="col-md-4">
+                <div class="card bank-card text-center h-100">
+                    <div class="card-body">
+                        <div class="bank-icon">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Thủ tục đơn giản</h5>
+                        <p class="card-text">Chỉ cần thông tin cơ bản và giấy tờ tùy thân, đăng ký dễ dàng như tại quầy giao dịch ngân hàng.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bank-card text-center h-100">
+                    <div class="card-body">
+                        <div class="bank-icon">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Giải ngân siêu tốc</h5>
+                        <p class="card-text">Duyệt hồ sơ nhanh, tiền về tài khoản trong ngày, bảo mật như chuyển khoản ngân hàng.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bank-card text-center h-100">
+                    <div class="card-body">
+                        <div class="bank-icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Bảo mật tuyệt đối</h5>
+                        <p class="card-text">Cam kết bảo vệ thông tin cá nhân và tài chính như tiêu chuẩn ngành ngân hàng.</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Giải ngân nhanh</h5>
-                    <p class="card-text">Xét duyệt nhanh chóng, tiền về tài khoản trong ngày.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Bảo mật thông tin</h5>
-                    <p class="card-text">Thông tin của bạn được cam kết bảo mật tuyệt đối.</p>
-                </div>
-            </div>
+        <div class="text-center mt-5">
+            <span class="text-muted">© 2025 Vay Tài Chính 24/7 – Giải pháp tài chính cho người Việt</span>
         </div>
     </div>
 </div>
+
+<!-- Bootstrap Icons CDN (thêm vào _Layout.cshtml nếu chưa có) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
