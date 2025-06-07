@@ -1,128 +1,191 @@
 ﻿@{
     ViewData["Title"] = "Trang chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="border-bottom: 2px solid #195d9a;">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/" style="color: #195d9a; font-size: 1.5rem;">
-            <img src="/images/logo-bank.png" alt="Logo" height="38" class="me-2" style="vertical-align: baseline;" />
-            Vay Tài Chính 24/7
-        </a>
-        <div>
-            <a class="btn btn-outline-primary ms-2" asp-controller="KhachHang" asp-action="CreateStep1">Đăng ký vay</a>
-            <a class="btn btn-outline-secondary ms-2" asp-controller="Account" asp-action="Login">Đăng nhập</a>
-        </div>
-    </div>
-</nav>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
     :root {
-        --main-blue: #195d9a;
-        --main-blue-hover: #114271;
-        --card-shadow: 0 4px 16px rgba(25,93,154,0.09);
-        --card-radius: 18px;
-        --background-blur: rgba(255,255,255,0.94);
+        --main-blue: #1762a6; /* Xanh ngân hàng sáng */
+        --main-blue-light: #7bb7f8;
+        --gold: #ffe47a;
+        --gold-strong: #ffd700;
+        --bg-bright: #f6fafd; /* Nền sáng */
+        --card-radius: 22px;
+        --card-shadow: 0 4px 32px 0 #dde5f299;
     }
 
     body {
-        background-image: url('/images/bg-bank.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        /* Gradient xanh sáng - vàng nhạt nhẹ */
+        background: linear-gradient(120deg, #f6fafd 65%, #ffe47a 125%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        color: #173354;
+        position: relative;
+        overflow-x: hidden;
+    }
+        /* Hiệu ứng ánh sáng vàng nhẹ overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            background: url('/images/bg-sparkle.png'), linear-gradient(115deg, #ffe47a33 20%, transparent 70%);
+            opacity: 0.22;
+            z-index: 0;
+        }
+
+    .exim-overlay {
+        background: rgba(255,255,255,0.96);
+        backdrop-filter: blur(2px) saturate(120%);
+        border-radius: var(--card-radius);
+        box-shadow: 0 10px 36px #bed4ec66, 0 2px 32px #ffd70013;
+        padding: 48px 34px 40px 34px;
+        margin-top: 52px;
+        margin-bottom: 60px;
+        border: 1.5px solid #f0e3bc99;
+        position: relative;
+        z-index: 2;
+    }
+
+    .logo-bank {
+        max-height: 60px;
+        margin-bottom: 8px;
+        filter: drop-shadow(0 0 8px #ffd70022);
+    }
+
+    .bank-slogan {
+        font-size: 1.12rem;
+        color: #b3971b;
+        font-weight: 500;
+        letter-spacing: 1px;
+        margin-bottom: 28px;
+        text-shadow: 0 2px 8px #ffe47a22;
+    }
+
+    .display-4 {
+        color: var(--main-blue);
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-shadow: 0 2px 18px #ffe47a55;
         font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
     }
 
-    .bank-overlay {
-        background: var(--background-blur);
-        border-radius: 18px;
-        box-shadow: 0 12px 24px rgba(25,93,154,0.07);
-        padding: 40px 32px 32px 32px;
-        margin-top: 48px;
-        margin-bottom: 48px;
-    }
-
-    .bank-card {
-        border: none;
-        border-radius: var(--card-radius);
-        box-shadow: var(--card-shadow);
-        transition: transform 0.17s;
-        background: #fff;
-        min-height: 210px;
-    }
-
-        .bank-card:hover {
-            transform: translateY(-6px) scale(1.03);
-            box-shadow: 0 8px 32px rgba(25,93,154,0.15);
-        }
-
-    .bank-icon {
-        font-size: 2.3rem;
-        color: var(--main-blue);
-        margin-bottom: 8px;
+    .lead {
+        color: #195d9a;
+        font-size: 1.19rem;
+        font-weight: 500;
+        margin-bottom: 18px;
+        text-shadow: 0 1px 8px #ffd70025;
     }
 
     .btn-primary {
-        background: var(--main-blue);
+        background: linear-gradient(92deg, #ffd700 20%, #7bb7f8 85%, #1762a6 130%);
+        color: #1762a6;
         border: none;
-        border-radius: 12px;
-        font-weight: 600;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1.17rem;
+        padding: 12px 40px;
+        box-shadow: 0 4px 14px #ffd70044;
+        transition: all 0.19s;
     }
 
-        .btn-primary:hover {
-            background: var(--main-blue-hover);
+        .btn-primary:hover, .btn-primary:focus {
+            background: linear-gradient(96deg, #1762a6 30%, #ffd700 80%);
+            color: #fff;
+            transform: scale(1.04);
+            box-shadow: 0 10px 44px #ffd70077;
         }
+
+    .card {
+        background: #fafdff;
+        border-radius: var(--card-radius);
+        border: 1.5px solid #ffe47a55;
+        box-shadow: var(--card-shadow);
+        color: #173354;
+        min-height: 210px;
+        transition: transform 0.17s, border-color 0.22s, box-shadow 0.16s;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .card:hover {
+            transform: translateY(-4px) scale(1.03);
+            border-color: #ffd700;
+            box-shadow: 0 12px 38px #ffd70033, 0 2px 22px #195d9a33;
+        }
+
+    .card-title {
+        color: var(--main-blue);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-top: 10px;
+        margin-bottom: 13px;
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+        color: #ffd700d8;
+        margin-bottom: 10px;
+        text-shadow: 0 1px 10px #ffe47a44;
+        display: inline-block;
+    }
+
+    .exim-footer {
+        border-top: 1.5px solid #ffe47a33;
+        padding-top: 18px;
+        margin-top: 45px;
+        color: #b0a651;
+        font-size: 0.98rem;
+        letter-spacing: 0.5px;
+        background: transparent;
+    }
 </style>
 
 <div class="container">
-    <div class="bank-overlay">
-        <div class="text-center mb-5">
-            <h1 class="display-5 fw-bold" style="color: #195d9a;">Chào mừng đến với Vay Tài Chính 24/7</h1>
-            <p class="lead mt-3" style="color: #12385a;">Giải pháp tài chính an toàn – Nhanh chóng – Bảo mật như ngân hàng!</p>
-            <a class="btn btn-primary btn-lg mt-3 px-5" asp-controller="KhachHang" asp-action="CreateStep1">
-                Đăng ký vay ngay
-            </a>
+    <div class="exim-overlay">
+        <div class="text-center">
+            <img src="/images/logo-bank.png" alt="Bank Logo" class="logo-bank mb-2">
+            <div class="bank-slogan">Thân thiện – Nhanh chóng – Hiện đại</div>
+            <h1 class="display-4 mb-3">Chào mừng đến với hệ thống vay tiền online</h1>
+            <p class="lead mb-3">Nhanh chóng, tiện lợi và an toàn cho mọi khách hàng</p>
+            <a class="btn btn-primary btn-lg mt-2 mb-4" asp-controller="KhachHang" asp-action="CreateStep1">Đăng ký vay ngay</a>
         </div>
         <div class="row mt-4 gy-4">
             <div class="col-md-4">
-                <div class="card bank-card text-center h-100">
+                <div class="card text-center h-100">
                     <div class="card-body">
-                        <div class="bank-icon">
-                            <i class="bi bi-clipboard-check"></i>
-                        </div>
-                        <h5 class="card-title fw-bold">Thủ tục đơn giản</h5>
-                        <p class="card-text">Chỉ cần thông tin cơ bản và giấy tờ tùy thân, đăng ký dễ dàng như tại quầy giao dịch ngân hàng.</p>
+                        <div class="card-icon"><i class="bi bi-clipboard-check"></i></div>
+                        <h5 class="card-title">Thủ tục đơn giản</h5>
+                        <p class="card-text">Chỉ cần cung cấp thông tin cơ bản và giấy tờ tuỳ thân để đăng ký.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card bank-card text-center h-100">
+                <div class="card text-center h-100">
                     <div class="card-body">
-                        <div class="bank-icon">
-                            <i class="bi bi-cash-coin"></i>
-                        </div>
-                        <h5 class="card-title fw-bold">Giải ngân siêu tốc</h5>
-                        <p class="card-text">Duyệt hồ sơ nhanh, tiền về tài khoản trong ngày, bảo mật như chuyển khoản ngân hàng.</p>
+                        <div class="card-icon"><i class="bi bi-lightning-charge"></i></div>
+                        <h5 class="card-title">Giải ngân nhanh</h5>
+                        <p class="card-text">Xét duyệt nhanh chóng, tiền về tài khoản trong ngày.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card bank-card text-center h-100">
+                <div class="card text-center h-100">
                     <div class="card-body">
-                        <div class="bank-icon">
-                            <i class="bi bi-shield-lock"></i>
-                        </div>
-                        <h5 class="card-title fw-bold">Bảo mật tuyệt đối</h5>
-                        <p class="card-text">Cam kết bảo vệ thông tin cá nhân và tài chính như tiêu chuẩn ngành ngân hàng.</p>
+                        <div class="card-icon"><i class="bi bi-shield-lock"></i></div>
+                        <h5 class="card-title">Bảo mật thông tin</h5>
+                        <p class="card-text">Thông tin của bạn được cam kết bảo mật tuyệt đối.</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="text-center mt-5">
-            <span class="text-muted">© 2025 Vay Tài Chính 24/7 – Giải pháp tài chính cho người Việt</span>
+        <div class="text-center exim-footer mt-5">
+            © 2025 Vay Tài Chính 24/7 – Giải pháp tài chính cho người Việt
         </div>
     </div>
 </div>
-
-<!-- Bootstrap Icons CDN (thêm vào _Layout.cshtml nếu chưa có) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
