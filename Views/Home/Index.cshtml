@@ -6,17 +6,16 @@
 
 <style>
     :root {
-        --main-blue: #1762a6; /* Xanh ngân hàng sáng */
+        --main-blue: #1762a6;
         --main-blue-light: #7bb7f8;
         --gold: #ffe47a;
         --gold-strong: #ffd700;
-        --bg-bright: #f6fafd; /* Nền sáng */
+        --bg-bright: #f6fafd;
         --card-radius: 22px;
         --card-shadow: 0 4px 32px 0 #dde5f299;
     }
 
     body {
-        /* Gradient xanh sáng - vàng nhạt nhẹ */
         background: linear-gradient(120deg, #f6fafd 65%, #ffe47a 125%);
         min-height: 100vh;
         font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
@@ -24,7 +23,7 @@
         position: relative;
         overflow-x: hidden;
     }
-        /* Hiệu ứng ánh sáng vàng nhẹ overlay */
+
         body::before {
             content: "";
             position: fixed;
@@ -71,7 +70,6 @@
         font-weight: 800;
         letter-spacing: 1.5px;
         text-shadow: 0 2px 18px #ffe47a55;
-        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
     }
 
     .lead {
@@ -109,8 +107,6 @@
         color: #173354;
         min-height: 210px;
         transition: transform 0.17s, border-color 0.22s, box-shadow 0.16s;
-        position: relative;
-        overflow: hidden;
     }
 
         .card:hover {
@@ -122,7 +118,6 @@
     .card-title {
         color: var(--main-blue);
         font-weight: 600;
-        letter-spacing: 0.5px;
         margin-top: 10px;
         margin-bottom: 13px;
     }
@@ -132,7 +127,6 @@
         color: #ffd700d8;
         margin-bottom: 10px;
         text-shadow: 0 1px 10px #ffe47a44;
-        display: inline-block;
     }
 
     .exim-footer {
@@ -141,11 +135,54 @@
         margin-top: 45px;
         color: #b0a651;
         font-size: 0.98rem;
-        letter-spacing: 0.5px;
+    }
+
+    #sidebarMenu a {
+        text-decoration: none !important;
+        color: #222 !important;
+        font-weight: 500;
+        font-size: 1.05rem;
+        padding: 10px 15px;
+        display: block;
+        transition: background 0.2s, color 0.2s;
+    }
+
+        #sidebarMenu a:hover {
+            background-color: #f5f5f5;
+            color: #1762a6 !important;
+            border-radius: 8px;
+        }
+
+    #sidebarMenu .list-group-item {
+        border: none;
+        padding: 6px 16px;
         background: transparent;
     }
-</style>
 
+</style>
+<button class="btn btn-light position-absolute" id="menuToggle" style="top: 80px; left: 16px; z-index: 10;">
+    <i class="bi bi-list" style="font-size: 1.8rem;"></i>
+</button>
+
+<div id="sidebarMenu" class="position-fixed top-0 start-0 bg-white shadow" style="width: 240px; height: 100%; transform: translateX(-100%); transition: transform 0.3s; z-index: 20;">
+    <div class="p-3 border-bottom">
+        <strong>Menu</strong>
+        <button class="btn-close float-end" onclick="toggleMenu()"></button>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="list-group-item"><a asp-controller="Account" asp-action="Login">Tài khoản</a></li>
+        <li class="list-group-item">
+            <a asp-controller="TaiKhoanNganHang" asp-action="Index">Thẻ ngân hàng</a>
+        </li>
+
+        <li class="list-group-item"><a asp-controller="Account" asp-action="">Bảng Lãi Suất</a></li>
+        <li class="list-group-item"><a asp-controller="KhachHang" asp-action="CreateStep1">Vay</a></li>
+        <li class="list-group-item"><a asp-controller="Home" asp-action="Index">Khuyến Mãi</a></li>
+    </ul>
+</div>
+
+<!-- Nội dung trang -->
 <div class="container">
     <div class="exim-overlay">
         <div class="text-center">
@@ -186,3 +223,19 @@
         </div>
     </div>
 </div>
+
+<!-- JS Toggle Menu -->
+<script>
+    const sidebar = document.getElementById("sidebarMenu");
+    const menuToggle = document.getElementById("menuToggle");
+
+    function toggleMenu() {
+        if (sidebar.style.transform === "translateX(0%)") {
+            sidebar.style.transform = "translateX(-100%)";
+        } else {
+            sidebar.style.transform = "translateX(0%)";
+        }
+    }
+
+    menuToggle.addEventListener("click", toggleMenu);
+</script>

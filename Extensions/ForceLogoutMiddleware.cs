@@ -1,26 +1,29 @@
-
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using VAYTIEN.Models;
+
+namespace VAYTIEN.Extensions;
 
 public class ForceLogoutMiddleware
 {
     private readonly RequestDelegate _next;
-    public static bool IsFirstStartup = true;
 
     public ForceLogoutMiddleware(RequestDelegate next)
     {
         _next = next;
     }
 
-    public async Task Invoke(HttpContext context, SignInManager<ApplicationUser> signInManager)
+    public async Task Invoke(HttpContext context,
+                             SignInManager<ApplicationUser> signInManager,
+                             StartupTrackerService tracker)
     {
-        if (IsFirstStartup && context.User.Identity.IsAuthenticated)
+        if (!tracker.HasForcedLogout() && context.User.Identity.IsAuthenticated)
         {
             await signInManager.SignOutAsync();
+            tracker.MarkAsLoggedOut();
+            context.Response.Redirect("/Account/Login?logout=true");
+            return;
         }
 
-        IsFirstStartup = false; // Chỉ force logout đúng 1 lần sau khi khởi động lại
         await _next(context);
     }
 }
-
