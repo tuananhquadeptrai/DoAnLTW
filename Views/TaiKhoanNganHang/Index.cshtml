@@ -3,7 +3,7 @@
     ViewData["Title"] = "Danh sách thẻ ngân hàng";
 }
 
-<h2 class="mb-4">@ViewData["Title"]</h2>
+<h2>@ViewData["Title"]</h2>
 
 <div class="row">
     @foreach (var the in Model)
@@ -12,8 +12,7 @@
             <div class="card shadow-sm">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img src="~/images/sacom.jpg" alt="Thẻ ngân hàng" class="img-fluid" />
-
+                        <img src="~/images/sacom.jpg" class="img-fluid rounded-start" alt="Thẻ ngân hàng" />
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">

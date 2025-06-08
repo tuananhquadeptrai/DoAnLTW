@@ -1,0 +1,28 @@
+﻿@if (Model != null)
+{
+    <div class="alert alert-info mt-4">
+        Bạn hiện chưa có thẻ ngân hàng nào. Hãy đăng ký thẻ để tiếp tục sử dụng dịch vụ.
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('form-lam-the').style.display = 'block'">
+        <i class="bi bi-credit-card"></i> Làm thẻ ngay
+    </button>
+
+    <div id="form-lam-the" style="display:none; margin-top: 20px;">
+        <form method="post" asp-controller="TaiKhoanNganHang" asp-action="Create">
+            <input type="hidden" name="MaKh" value="@Model.MaKh" />
+            <div class="mb-3">
+                <label class="form-label">Số tài khoản</label>
+                <input type="text" name="SoTaiKhoan" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tên ngân hàng</label>
+                <input type="text" name="TenNganHang" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Chi nhánh</label>
+                <input type="text" name="ChiNhanh" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-success">Xác nhận đăng ký thẻ</button>
+        </form>
+    </div>
+}

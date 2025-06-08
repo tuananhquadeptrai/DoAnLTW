@@ -96,5 +96,22 @@ namespace VAYTIEN.Controllers
         {
             return View();
         }
+        [Authorize]
+        public async Task<IActionResult> ThongTinCaNhan()
+        {
+            var userEmail = User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(userEmail))
+                return RedirectToAction("Login", "Account");
+
+            var khachHang = await _context.KhachHangs
+                .FirstOrDefaultAsync(kh => kh.Email == userEmail);
+
+            if (khachHang == null)
+                return RedirectToAction("CreateStep1");
+
+            return View(khachHang);
+        }
+
     }
 }

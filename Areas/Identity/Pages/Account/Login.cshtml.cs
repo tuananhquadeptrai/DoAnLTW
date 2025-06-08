@@ -7,10 +7,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -47,14 +45,14 @@ namespace VAYTIEN.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            [EmailAddress]
-            public string Email { get; set; }
+            [Display(Name = "Số điện thoại hoặc Email")]
+            public string Username { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
-            [Display(Name = "Remember me?")]
+            [Display(Name = "Ghi nhớ đăng nhập")]
             public bool RememberMe { get; set; }
         }
 
@@ -67,7 +65,6 @@ namespace VAYTIEN.Areas.Identity.Pages.Account
 
             returnUrl ??= Url.Content("~/");
 
-            // Clear external cookies
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -81,40 +78,51 @@ namespace VAYTIEN.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                ApplicationUser user = null;
 
-                if (result.Succeeded)
+                if (Input.Username.Contains("@"))
                 {
-                    var user = await _userManager.FindByEmailAsync(Input.Email);
-                    var roles = await _userManager.GetRolesAsync(user);
+                    user = await _userManager.FindByEmailAsync(Input.Username);
+                }
+                else
+                {
+                    user = _userManager.Users.FirstOrDefault(u => u.PhoneNumber == Input.Username);
+                }
 
-                    _logger.LogInformation("User logged in.");
+                if (user != null)
+                {
+                    var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
 
-                    if (roles.Contains(SD.Role_Admin))
+                    if (result.Succeeded)
                     {
-                        return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                        var roles = await _userManager.GetRolesAsync(user);
+                        _logger.LogInformation("User logged in.");
+
+                        if (roles.Contains(SD.Role_Admin))
+                        {
+                            return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Home", new { area = "" });
+                        }
                     }
-                    else
+
+                    if (result.RequiresTwoFactor)
                     {
-                        return RedirectToAction("Index", "Home", new { area = "" });
+                        return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+                    }
+
+                    if (result.IsLockedOut)
+                    {
+                        _logger.LogWarning("User account locked out.");
+                        return RedirectToPage("./Lockout");
                     }
                 }
 
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
-                }
-
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không đúng.");
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
     }
