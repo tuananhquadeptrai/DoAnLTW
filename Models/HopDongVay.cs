@@ -29,6 +29,7 @@ public partial class HopDongVay
 
     public virtual ICollection<LichTraNo> LichTraNos { get; set; } = new List<LichTraNo>();
 
+
     public virtual KhachHang? MaKhNavigation { get; set; }
 
     public virtual LoaiTienTe? MaLoaiTienTeNavigation { get; set; }
