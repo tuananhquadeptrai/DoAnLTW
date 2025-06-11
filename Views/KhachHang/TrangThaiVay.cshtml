@@ -1,0 +1,59 @@
+﻿@model List<VAYTIEN.Models.HopDongVay>
+
+@{
+    ViewData["Title"] = "Trạng thái vay";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <h3 class="fw-bold text-center mb-4 text-primary">Trạng Thái Các Hợp Đồng Vay</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            Bạn chưa có hợp đồng vay nào.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Ngày vay</th>
+                    <th>Ngày hết hạn</th>
+                    <th>Số tiền vay</th>
+                    <th>Kỳ hạn (tháng)</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var h = Model[i];
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@h.NgayVay?.ToString("dd/MM/yyyy")</td>
+                        <td>@h.NgayHetHan?.ToString("dd/MM/yyyy")</td>
+                        <td>@string.Format("{0:N0} đ", h.SoTienVay)</td>
+                        <td>@h.KyHanThang</td>
+                        <td>
+                            @if (h.TinhTrang == "Đã duyệt")
+                            {
+                                <span class="badge bg-success">@h.TinhTrang</span>
+                            }
+                            else if (h.TinhTrang == "Từ chối")
+                            {
+                                <span class="badge bg-danger">@h.TinhTrang</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">@h.TinhTrang</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

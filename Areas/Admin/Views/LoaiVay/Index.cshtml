@@ -1,0 +1,44 @@
+﻿@model List<VAYTIEN.Models.LoaiVay>
+
+@{
+    ViewData["Title"] = "Quản lý sản phẩm vay";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-primary mb-4">📦 Danh sách sản phẩm vay</h2>
+
+<a asp-action="Create" class="btn btn-success mb-3">
+    <i class="bi bi-plus-circle"></i> Thêm sản phẩm vay
+</a>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr class="text-center">
+            <th>#</th>
+            <th>Tên sản phẩm vay</th>
+            <th>Lãi suất (%)</th>
+            <th>Kỳ hạn (tháng)</th>
+            <th>Ghi chú</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var item = Model[i];
+            <tr>
+                <td class="text-center">@(@i + 1)</td>
+                <td>@item.TenLoaiVay</td>
+                <td class="text-center">@item.LaiSuat?.ToString("0.##")</td>
+                <td class="text-center">@item.KyHan</td>
+                <td>@item.GhiChu</td>
+                <td class="text-center">
+                    <a asp-action="Edit" asp-route-id="@item.MaLoaiVay" class="btn btn-sm btn-primary">Sửa</a>
+                    <form asp-action="Delete" asp-route-id="@item.MaLoaiVay" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Xóa thật chứ?')">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

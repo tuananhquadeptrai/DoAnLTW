@@ -15,6 +15,21 @@ namespace VAYTIEN.Controllers
         {
             _context = context;
         }
+        [Authorize(Roles = SD.Role_Customer)]
+        public async Task<IActionResult> TrangThaiVay()
+        {
+            var email = User.Identity?.Name;
+            var kh = await _context.KhachHangs.FirstOrDefaultAsync(k => k.Email == email);
+            if (kh == null) return RedirectToAction("CreateStep1");
+
+            var hopDongs = await _context.HopDongVays
+                .Where(h => h.MaKh == kh.MaKh)
+                .OrderByDescending(h => h.NgayVay)
+                .ToListAsync();
+
+            return View(hopDongs); // tạo View để hiển thị danh sách trạng thái vay
+        }
+
 
         // Bước 1 - Form thông tin cá nhân
         public IActionResult CreateStep1()
@@ -23,14 +38,13 @@ namespace VAYTIEN.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateStep1(KhachHang kh, IFormFile? anhFile)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.DoiTuongVayList = _context.DoiTuongVays.ToList(); // Đảm bảo form không bị mất dropdown
+                ViewBag.DoiTuongVayList = _context.DoiTuongVays.ToList();
                 return View(kh);
             }
 
@@ -41,7 +55,6 @@ namespace VAYTIEN.Controllers
                 return View(kh);
             }
 
-            // Upload ảnh
             if (anhFile != null && anhFile.Length > 0)
             {
                 var fileName = Path.GetFileName(anhFile.FileName);
@@ -51,11 +64,9 @@ namespace VAYTIEN.Controllers
                 kh.AnhDinhKem = "/uploads/" + fileName;
             }
 
-            // Lưu tạm vào TempData
             TempData["KhachHang"] = JsonSerializer.Serialize(kh);
             return RedirectToAction("CreateStep2");
         }
-
 
         // Bước 2 - Form thông tin vay
         public IActionResult CreateStep2()
@@ -89,7 +100,6 @@ namespace VAYTIEN.Controllers
             hopDong.MaKh = khachHang.MaKh;
             hopDong.TinhTrang = "Chờ phê duyệt";
 
-            // Tự tính ngày hết hạn nếu chưa có
             if (!hopDong.NgayHetHan.HasValue && hopDong.NgayVay.HasValue && hopDong.KyHanThang.HasValue)
             {
                 hopDong.NgayHetHan = hopDong.NgayVay.Value.AddMonths(hopDong.KyHanThang.Value);
@@ -102,7 +112,6 @@ namespace VAYTIEN.Controllers
             _context.TaiSanTheChaps.Add(taiSan);
             await _context.SaveChangesAsync();
 
-            // ✅ Tạo lịch trả nợ tự động
             if (hopDong.KyHanThang.HasValue && hopDong.SoTienVay.HasValue && hopDong.NgayVay.HasValue)
             {
                 var kyHan = hopDong.KyHanThang.Value;
@@ -132,23 +141,22 @@ namespace VAYTIEN.Controllers
         {
             return View();
         }
+
         [Authorize]
         public async Task<IActionResult> ThongTinCaNhan()
         {
             var userEmail = User.Identity?.Name;
-
             if (string.IsNullOrEmpty(userEmail))
                 return RedirectToAction("Login", "Account");
 
-            var khachHang = await _context.KhachHangs
-                .FirstOrDefaultAsync(kh => kh.Email == userEmail);
-
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(kh => kh.Email == userEmail);
             if (khachHang == null)
                 return RedirectToAction("CreateStep1");
 
             return View(khachHang);
         }
-        // ✅ Xem thông tin vay và lịch trả nợ
+
+        // ✅ Xem lịch sử vay (chỉ hợp đồng đã duyệt)
         [Authorize(Roles = SD.Role_Customer)]
         public async Task<IActionResult> ThongTinVay()
         {
@@ -157,7 +165,7 @@ namespace VAYTIEN.Controllers
             if (khachHang == null) return RedirectToAction("CreateStep1");
 
             var hopDongs = await _context.HopDongVays
-                .Where(h => h.MaKh == khachHang.MaKh)
+                .Where(h => h.MaKh == khachHang.MaKh && h.TinhTrang == "Đã duyệt")
                 .Include(h => h.LichTraNos)
                 .ToListAsync();
 
@@ -170,6 +178,8 @@ namespace VAYTIEN.Controllers
                     SoTienVay = h.SoTienVay,
                     NgayVay = h.NgayVay,
                     NgayHetHan = h.NgayHetHan,
+                    KyHanThang = h.KyHanThang,
+                    LaiSuat = h.LaiSuat,
                     LichTra = h.LichTraNos.Select(l => new LichTraViewModel
                     {
                         KyHanThu = l.KyHanThu ?? 0,
@@ -182,7 +192,5 @@ namespace VAYTIEN.Controllers
 
             return View(viewModel);
         }
-
-
     }
 }
