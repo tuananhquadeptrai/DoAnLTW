@@ -1,4 +1,4 @@
-﻿@model VAYTIEN.Models.ThongTinVayViewModel
+@model VAYTIEN.Models.ThongTinVayViewModel
 
 <h2 class="text-primary">Thông Tin Tất Cả Hợp Đồng Vay</h2>
 <p class="alert alert-info">
@@ -46,10 +46,9 @@
                     <strong>🔔 Tháng cần thanh toán:</strong> @kyCanThanhToan.NgayTra?.ToString("MM/yyyy") —
                     <strong>Số tiền:</strong> @kyCanThanhToan.SoTienPhaiTra?.ToString("N0") VNĐ
 
-                    <!-- ✅ Sửa thành method="get" + đúng query string -->
-                    <form method="get" asp-controller="ThanhToan" asp-action="ChiTiet" class="d-inline ms-3">
-                        <input type="hidden" name="maHopDong" value="@hd.MaHopDong" />
-                        <input type="hidden" name="kyHanThu" value="@kyCanThanhToan.KyHanThu" />
+                    <form method="post" asp-controller="ThanhToan" asp-action="ChiTiet" class="d-inline ms-3">
+                        <input type="hidden" name="MaHopDong" value="@hd.MaHopDong" />
+                        <input type="hidden" name="KyHan" value="@kyCanThanhToan.KyHanThu" />
                         <button type="submit" class="btn btn-sm btn-success">Thanh toán kỳ này</button>
                     </form>
                 </div>
@@ -95,12 +94,12 @@
                             <td>
                                 @if (isChuaTra)
                                 {
-                                    <!-- ✅ Sửa form từng dòng thành GET + query -->
                                     <form method="get" asp-controller="ThanhToan" asp-action="ChiTiet">
                                         <input type="hidden" name="maHopDong" value="@hd.MaHopDong" />
                                         <input type="hidden" name="kyHanThu" value="@item.KyHanThu" />
                                         <button type="submit" class="btn btn-sm btn-danger">Thanh toán</button>
                                     </form>
+
                                 }
                             </td>
                         </tr>

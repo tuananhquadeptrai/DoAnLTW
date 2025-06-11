@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using VAYTIEN.Models;
@@ -7,12 +7,13 @@ public class ThanhToanController : Controller
 {
     private readonly QlvayTienContext _context;
     private readonly MoMoService _momoService;
-
     public ThanhToanController(QlvayTienContext context, MoMoService momoService)
     {
         _context = context;
         _momoService = momoService;
     }
+
+    // GET: /ThanhToan/ChiTiet?maHopDong=11&kyHanThu=1
     public async Task<IActionResult> ChiTiet(int maHopDong, int kyHanThu)
     {
         var hopDong = await _context.HopDongVays.FindAsync(maHopDong);
@@ -37,7 +38,6 @@ public class ThanhToanController : Controller
 
         return View(viewModel);
     }
-
     [HttpPost]
     public async Task<IActionResult> ThucHien(ThanhToanViewModel model)
     {
@@ -81,6 +81,7 @@ public class ThanhToanController : Controller
 
         return RedirectToAction("ThongTinVay", "KhachHang");
     }
+    // Action MoMo chuyển về sau khi thanh toán (redirect khách)
     public async Task<IActionResult> MoMoReturn()
     {
         // Lấy các giá trị MoMo trả về (query string)
@@ -111,6 +112,8 @@ public class ThanhToanController : Controller
 
         return View();
     }
+
+    // Action nhận webhook MoMo (IPN, hệ thống gọi tự động)
     [HttpPost]
     public async Task<IActionResult> MoMoNotify()
     {
@@ -139,5 +142,6 @@ public class ThanhToanController : Controller
         // MoMo yêu cầu trả về "200 OK" nếu đã xử lý xong
         return Ok();
     }
+
 
 }

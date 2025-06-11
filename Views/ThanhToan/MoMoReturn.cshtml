@@ -1,0 +1,8 @@
+﻿@{
+    ViewData["Title"] = "Kết quả thanh toán";
+}
+<div class="alert @(ViewBag.Message.Contains("thành công") ? "alert-success" : "alert-danger") mt-4">
+    <i class="bi @(ViewBag.Message.Contains("thành công") ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+    @ViewBag.Message
+</div>
+<a asp-action="ThongTinVay" asp-controller="KhachHang" class="btn btn-primary mt-2">Quay về danh sách khoản vay</a>
