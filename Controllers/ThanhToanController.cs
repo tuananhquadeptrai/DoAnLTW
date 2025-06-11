@@ -45,10 +45,8 @@ public class ThanhToanController : Controller
 
         if (lichTra != null && lichTra.TrangThai != "Đã trả")
         {
-            // 👉 Xử lý theo phương thức thanh toán
             if (model.PhuongThuc == "Momo")
             {
-                // Chuyển hướng giả lập Momo (thay bằng API thật nếu có)
                 return Redirect($"https://momo.vn/pay?amount={model.SoTienPhaiTra}&ref={model.MaHopDong}-{model.KyHan}");
             }
             else if (model.PhuongThuc == "VNPAY")
@@ -56,7 +54,6 @@ public class ThanhToanController : Controller
                 return Redirect($"https://vnpay.vn/pay?amount={model.SoTienPhaiTra}&ref={model.MaHopDong}-{model.KyHan}");
             }
 
-            // ❗ Nếu không chọn cổng nào, xử lý mặc định nội bộ
             lichTra.TrangThai = "Đã trả";
             lichTra.NgayTra = DateOnly.FromDateTime(DateTime.Now);
             await _context.SaveChangesAsync();
