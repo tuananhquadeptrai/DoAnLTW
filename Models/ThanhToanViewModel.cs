@@ -1,4 +1,4 @@
-﻿namespace VAYTIEN.Models
+namespace VAYTIEN.Models
 {
     public class ThanhToanViewModel
     {
@@ -11,3 +11,4 @@
         public string? PhuongThuc { get; set; }
     }
 }
+
