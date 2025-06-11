@@ -61,15 +61,30 @@
     </ul>
 </div>
 
+<div class="container mb-5">
+    <h3 class="text-center mb-4 fw-bold fs-3">Bạn đang có nhu cầu vay cho mục đích gì?</h3>
+    <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+        <select class="form-select form-select-lg w-50" style="min-width: 300px;">
+            <option selected disabled>Lựa chọn nhu cầu của bạn</option>
+            <option value="1">Vay mua nhà</option>
+            <option value="2">Vay kinh doanh</option>
+            <option value="3">Vay tiêu dùng</option>
+            <option value="4">Vay du học</option>
+            <option value="5">Vay du lịch</option>
+        </select>
+        <button class="btn btn-success btn-lg fw-semibold px-4">Kết nối</button>
+    </div>
+</div>
+
+
 <div class="container py-5">
-    <h2 class="text-center mb-5 text-primary fw-bold display-6">Gói vay nổi bật</h2>
     <div class="row align-items-stretch g-4">
 
         <!-- Gói vay nhà ở -->
         <div class="col-md-6">
             <div class="card-loan d-flex flex-row overflow-hidden h-100">
                 <div class="col-6 p-0">
-                    <img src="/images/home-loan-family.jpg" class="img-fluid h-100 w-100 object-fit-cover" alt="Vay nhà">
+                    <img src="/images/muanha.webp" class="img-fluid h-100 w-100 object-fit-cover" alt="Vay nhà">
                 </div>
                 <div class="col-6 d-flex flex-column justify-content-center p-4 loan-content">
                     <h4 class="loan-title">Vay nhu cầu nhà ở</h4>
@@ -84,11 +99,11 @@
 
         <!-- Các gói vay khác -->
         @foreach (var goi in new[] {
-        new {Title="Vay kinh doanh", Img="/images/business-loan.jpg"},
-        new {Title="Vay du lịch", Img="/images/business-loan.jpg"},
-        new {Title="Vay du học", Img="/images/business-loan.jpg"},
-        new {Title="Vay tín chấp", Img="/images/business-loan.jpg"},
-        new {Title="Vay trả góp", Img="/images/business-loan.jpg"}
+        new {Title="Vay kinh doanh", Img="/images/kinhdoanh.jpg"},
+        new {Title="Vay du lịch", Img="/images/dulich.webp"},
+        new {Title="Vay du học", Img="/images/duhoc.webp"},
+        new {Title="Vay tín chấp", Img="/images/tinchap.webp"},
+        new {Title="Vay trả góp", Img="/images/muanha.webp"}
         })
         {
             <div class="col-md-6">
@@ -171,6 +186,22 @@
         #sidebarMenu .list-group-item:hover a {
             color: #007bff !important;
         }
+
+    select.form-select:focus {
+        border-color: #0d9488;
+        box-shadow: 0 0 0 0.2rem rgba(13, 148, 136, 0.25);
+    }
+
+    .btn-success {
+        background-color: #006d67;
+        border-color: #006d67;
+    }
+
+        .btn-success:hover {
+            background-color: #005c57;
+            border-color: #005c57;
+        }
+
 </style>
 
 <script>
