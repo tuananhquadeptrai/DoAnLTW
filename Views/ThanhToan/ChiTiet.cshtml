@@ -1,4 +1,8 @@
-﻿@model VAYTIEN.Models.ThanhToanViewModel
+﻿@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@model VAYTIEN.Models.ThanhToanViewModel
 
 <h2 class="text-primary">Xác nhận thanh toán</h2>
 
