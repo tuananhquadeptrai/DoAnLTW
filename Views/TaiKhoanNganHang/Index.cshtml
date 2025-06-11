@@ -1,0 +1,32 @@
+﻿@model List<VAYTIEN.Models.TaiKhoanNganHang>
+@{
+    ViewData["Title"] = "Danh sách thẻ ngân hàng";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="row">
+    @foreach (var the in Model)
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="~/images/sacom.jpg" class="img-fluid rounded-start" alt="Thẻ ngân hàng" />
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Thẻ @the.LoaiTaiKhoan</h5>
+                            <p class="card-text"><strong>Chủ thẻ:</strong> @the.MaKhNavigation?.HoTen</p>
+                            <p class="card-text"><strong>Số tài khoản:</strong> @the.SoTaiKhoan</p>
+                            <p class="card-text"><strong>Số dư:</strong> @the.SoDu?.ToString("N0") ₫</p>
+                            <p class="card-text"><strong>Trạng thái:</strong> @the.TrangThai</p>
+                            <a href="#" class="btn btn-primary">Mở thẻ ngay</a>
+                            <a href="#" class="ms-3">Biểu phí & Điều kiện</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

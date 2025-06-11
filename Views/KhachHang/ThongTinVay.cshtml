@@ -1,0 +1,111 @@
+﻿@model VAYTIEN.Models.ThongTinVayViewModel
+
+<h2 class="text-primary">Thông Tin Tất Cả Hợp Đồng Vay</h2>
+<p class="alert alert-info">
+    <strong>Tổng số tiền đã vay:</strong> @Model.TongSoTienVay.ToString("N0") VNĐ
+</p>
+
+@foreach (var hd in Model.HopDongs)
+{
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <strong>Hợp đồng #@hd.MaHopDong</strong> — @hd.SoTienVay?.ToString("N0") VNĐ
+        </div>
+        <div class="card-body">
+            <p><strong>Thời gian vay:</strong> @hd.NgayVay?.ToString("dd/MM/yyyy") → @hd.NgayHetHan?.ToString("dd/MM/yyyy")</p>
+
+            @{
+                var lichTraTam = hd.LichTra ?? new List<VAYTIEN.Models.LichTraViewModel>();
+
+                if (!lichTraTam.Any() && hd.NgayVay.HasValue && hd.NgayHetHan.HasValue && hd.SoTienVay.HasValue)
+                {
+                    var kyHan = (hd.NgayHetHan.Value.Year - hd.NgayVay.Value.Year) * 12 + hd.NgayHetHan.Value.Month - hd.NgayVay.Value.Month;
+                    var ngayTra = hd.NgayVay.Value;
+                    var tienMoiThang = Math.Round(hd.SoTienVay.Value / kyHan, 0);
+
+                    for (int i = 1; i <= kyHan; i++)
+                    {
+                        lichTraTam.Add(new VAYTIEN.Models.LichTraViewModel
+                        {
+                            KyHanThu = i,
+                            NgayTra = ngayTra.AddMonths(i),
+                            SoTienPhaiTra = tienMoiThang,
+                            TrangThai = "Chưa có dữ liệu"
+                        });
+                    }
+                }
+
+                var kyCanThanhToan = lichTraTam
+                .Where(x => (x.TrangThai == "Chưa trả" || x.TrangThai == "Chưa có dữ liệu") && x.NgayTra.HasValue)
+                .FirstOrDefault();
+            }
+
+            @if (kyCanThanhToan != null)
+            {
+                <div class="mb-3 p-2 border rounded bg-light">
+                    <strong>🔔 Tháng cần thanh toán:</strong> @kyCanThanhToan.NgayTra?.ToString("MM/yyyy") —
+                    <strong>Số tiền:</strong> @kyCanThanhToan.SoTienPhaiTra?.ToString("N0") VNĐ
+
+                    <form method="post" asp-controller="ThanhToan" asp-action="ChiTiet" class="d-inline ms-3">
+                        <input type="hidden" name="MaHopDong" value="@hd.MaHopDong" />
+                        <input type="hidden" name="KyHan" value="@kyCanThanhToan.KyHanThu" />
+                        <button type="submit" class="btn btn-sm btn-success">Thanh toán kỳ này</button>
+                    </form>
+                </div>
+            }
+
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kỳ hạn</th>
+                        <th>Ngày trả</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thanh toán</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in lichTraTam)
+                    {
+                        var isChuaTra = item.TrangThai == "Chưa trả" || item.TrangThai == "Chưa có dữ liệu";
+
+                        <tr>
+                            <td>@item.KyHanThu</td>
+                            <td>@item.NgayTra?.ToString("dd/MM/yyyy")</td>
+                            <td>@item.SoTienPhaiTra?.ToString("N0") VNĐ</td>
+                            <td>
+                                @if (item.TrangThai == "Đã trả")
+                                {
+                                    <span class="badge bg-success">Đã trả</span>
+                                }
+                                else if (item.TrangThai == "Chưa trả")
+                                {
+                                    <span class="badge bg-warning text-dark">Chưa trả</span>
+                                }
+                                else if (item.TrangThai == "Chưa có dữ liệu")
+                                {
+                                    <span class="badge bg-secondary">Chưa có dữ liệu</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-dark text-white">@item.TrangThai</span>
+                                }
+                            </td>
+                            <td>
+                                @if (isChuaTra)
+                                {
+                                    <form method="post" asp-controller="ThanhToan" asp-action="ChiTiet">
+                                        <input type="hidden" name="MaHopDong" value="@hd.MaHopDong" />
+                                        <input type="hidden" name="KyHan" value="@item.KyHanThu" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Thanh toán</button>
+                                    </form>
+
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

@@ -73,13 +73,27 @@ namespace VAYTIEN.Controllers
                 return RedirectToAction("CreateStep1");
 
             var khachHang = JsonSerializer.Deserialize<KhachHang>(TempData["KhachHang"]!.ToString()!);
+            khachHang.Email = User.Identity?.Name;
 
-            // Lưu khách hàng
-            _context.KhachHangs.Add(khachHang);
-            await _context.SaveChangesAsync();
+            var existingKH = await _context.KhachHangs.FirstOrDefaultAsync(kh => kh.Email == khachHang.Email);
+            if (existingKH != null)
+            {
+                khachHang = existingKH;
+            }
+            else
+            {
+                _context.KhachHangs.Add(khachHang);
+                await _context.SaveChangesAsync();
+            }
 
             hopDong.MaKh = khachHang.MaKh;
             hopDong.TinhTrang = "Chờ phê duyệt";
+
+            // Tự tính ngày hết hạn nếu chưa có
+            if (!hopDong.NgayHetHan.HasValue && hopDong.NgayVay.HasValue && hopDong.KyHanThang.HasValue)
+            {
+                hopDong.NgayHetHan = hopDong.NgayVay.Value.AddMonths(hopDong.KyHanThang.Value);
+            }
 
             _context.HopDongVays.Add(hopDong);
             await _context.SaveChangesAsync();
@@ -88,13 +102,87 @@ namespace VAYTIEN.Controllers
             _context.TaiSanTheChaps.Add(taiSan);
             await _context.SaveChangesAsync();
 
+            // ✅ Tạo lịch trả nợ tự động
+            if (hopDong.KyHanThang.HasValue && hopDong.SoTienVay.HasValue && hopDong.NgayVay.HasValue)
+            {
+                var kyHan = hopDong.KyHanThang.Value;
+                var soTien = hopDong.SoTienVay.Value / kyHan;
+                var ngayTra = hopDong.NgayVay.Value;
+
+                for (int i = 1; i <= kyHan; i++)
+                {
+                    var lich = new LichTraNo
+                    {
+                        MaHopDong = hopDong.MaHopDong,
+                        KyHanThu = i,
+                        NgayTra = ngayTra.AddMonths(i),
+                        SoTienPhaiTra = Math.Round(soTien, 0),
+                        TrangThai = "Chưa trả"
+                    };
+                    _context.LichTraNos.Add(lich);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
             return RedirectToAction("XacNhan");
         }
 
-        // ✅ Trang xác nhận thành công
         public IActionResult XacNhan()
         {
             return View();
         }
+        [Authorize]
+        public async Task<IActionResult> ThongTinCaNhan()
+        {
+            var userEmail = User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(userEmail))
+                return RedirectToAction("Login", "Account");
+
+            var khachHang = await _context.KhachHangs
+                .FirstOrDefaultAsync(kh => kh.Email == userEmail);
+
+            if (khachHang == null)
+                return RedirectToAction("CreateStep1");
+
+            return View(khachHang);
+        }
+        // ✅ Xem thông tin vay và lịch trả nợ
+        [Authorize(Roles = SD.Role_Customer)]
+        public async Task<IActionResult> ThongTinVay()
+        {
+            var email = User.Identity?.Name;
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(kh => kh.Email == email);
+            if (khachHang == null) return RedirectToAction("CreateStep1");
+
+            var hopDongs = await _context.HopDongVays
+                .Where(h => h.MaKh == khachHang.MaKh)
+                .Include(h => h.LichTraNos)
+                .ToListAsync();
+
+            var viewModel = new ThongTinVayViewModel
+            {
+                TongSoTienVay = hopDongs.Sum(h => h.SoTienVay ?? 0),
+                HopDongs = hopDongs.Select(h => new ThongTinHopDongViewModel
+                {
+                    MaHopDong = h.MaHopDong,
+                    SoTienVay = h.SoTienVay,
+                    NgayVay = h.NgayVay,
+                    NgayHetHan = h.NgayHetHan,
+                    LichTra = h.LichTraNos.Select(l => new LichTraViewModel
+                    {
+                        KyHanThu = l.KyHanThu ?? 0,
+                        NgayTra = l.NgayTra,
+                        SoTienPhaiTra = l.SoTienPhaiTra,
+                        TrangThai = l.TrangThai
+                    }).OrderBy(x => x.KyHanThu).ToList()
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+
     }
 }

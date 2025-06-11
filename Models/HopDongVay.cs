@@ -34,6 +34,7 @@ public partial class HopDongVay
     public virtual LoaiTienTe? MaLoaiTienTeNavigation { get; set; }
 
     public virtual LoaiVay? MaLoaiVayNavigation { get; set; }
+    public int? KyHanThang { get; set; }
 
     public virtual NhanVien? MaNvNavigation { get; set; }
 
