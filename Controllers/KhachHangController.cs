@@ -96,9 +96,10 @@ namespace VAYTIEN.Controllers
                 _context.KhachHangs.Add(khachHang);
                 await _context.SaveChangesAsync();
             }
-
             hopDong.MaKh = khachHang.MaKh;
             hopDong.TinhTrang = "Chờ phê duyệt";
+            hopDong.SoTienConLai = hopDong.SoTienVay; // ✅ Thêm dòng này
+
 
             if (!hopDong.NgayHetHan.HasValue && hopDong.NgayVay.HasValue && hopDong.KyHanThang.HasValue)
             {
@@ -180,6 +181,7 @@ namespace VAYTIEN.Controllers
                     NgayHetHan = h.NgayHetHan,
                     KyHanThang = h.KyHanThang,
                     LaiSuat = h.LaiSuat,
+                    SoTienConLai = h.SoTienConLai,
                     LichTra = h.LichTraNos.Select(l => new LichTraViewModel
                     {
                         KyHanThu = l.KyHanThu ?? 0,

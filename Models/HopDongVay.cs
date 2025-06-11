@@ -14,7 +14,7 @@ public partial class HopDongVay
     public int? MaLoaiTienTe { get; set; }
 
     public decimal? SoTienVay { get; set; }
-
+    public decimal? SoTienConLai { get; set; }
     public DateOnly? NgayVay { get; set; }
 
     public DateOnly? NgayHetHan { get; set; }

@@ -84,16 +84,15 @@ public class ThanhToanController : Controller
     // Action MoMo chuyển về sau khi thanh toán (redirect khách)
     public async Task<IActionResult> MoMoReturn()
     {
-        // Lấy các giá trị MoMo trả về (query string)
         var orderId = Request.Query["orderId"];
         var resultCode = Request.Query["resultCode"];
 
         if (resultCode == "0")
         {
-            // Đã thanh toán thành công – update trạng thái
             var ids = orderId.ToString().Split('_');
             int maHopDong = int.Parse(ids[0]);
             int kyHan = int.Parse(ids[1]);
+
             var lichTra = await _context.LichTraNos
                 .FirstOrDefaultAsync(x => x.MaHopDong == maHopDong && x.KyHanThu == kyHan);
 
@@ -101,8 +100,16 @@ public class ThanhToanController : Controller
             {
                 lichTra.TrangThai = "Đã trả";
                 lichTra.NgayTra = DateOnly.FromDateTime(DateTime.Now);
+
+                var hopDong = await _context.HopDongVays.FindAsync(maHopDong);
+                if (hopDong != null && lichTra.SoTienPhaiTra.HasValue)
+                {
+                    hopDong.SoTienConLai = (hopDong.SoTienConLai ?? hopDong.SoTienVay) - lichTra.SoTienPhaiTra.Value;
+                }
+
                 await _context.SaveChangesAsync();
             }
+
             ViewBag.Message = "Thanh toán thành công!";
         }
         else
@@ -112,6 +119,7 @@ public class ThanhToanController : Controller
 
         return View();
     }
+
 
     // Action nhận webhook MoMo (IPN, hệ thống gọi tự động)
     [HttpPost]
@@ -129,6 +137,7 @@ public class ThanhToanController : Controller
             var ids = orderId.ToString().Split('_');
             int maHopDong = int.Parse(ids[0]);
             int kyHan = int.Parse(ids[1]);
+
             var lichTra = await _context.LichTraNos
                 .FirstOrDefaultAsync(x => x.MaHopDong == maHopDong && x.KyHanThu == kyHan);
 
@@ -136,12 +145,21 @@ public class ThanhToanController : Controller
             {
                 lichTra.TrangThai = "Đã trả";
                 lichTra.NgayTra = DateOnly.FromDateTime(DateTime.Now);
+
+                var hopDong = await _context.HopDongVays.FindAsync(maHopDong);
+                if (hopDong != null && lichTra.SoTienPhaiTra.HasValue)
+                {
+                    hopDong.SoTienConLai = (hopDong.SoTienConLai ?? hopDong.SoTienVay) - lichTra.SoTienPhaiTra.Value;
+                }
+
                 await _context.SaveChangesAsync();
             }
         }
+
         // MoMo yêu cầu trả về "200 OK" nếu đã xử lý xong
         return Ok();
     }
+
 
 
 }

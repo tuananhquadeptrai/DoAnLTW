@@ -9,13 +9,14 @@
 {
     <div class="card mb-4">
         <div class="card-header bg-secondary text-white">
-            <strong>Hợp đồng #@hd.MaHopDong</strong> — @hd.SoTienVay?.ToString("N0") VNĐ
+            <strong>Hợp đồng #@hd.MaHopDong</strong> —
+            <span class="text-warning">Đã vay:</span> @hd.SoTienVay?.ToString("N0") VNĐ —
+            <span class="text-light">Còn lại:</span> @hd.SoTienConLai?.ToString("N0") VNĐ
         </div>
         <div class="card-body">
             <p><strong>Thời gian vay:</strong> @hd.NgayVay?.ToString("dd/MM/yyyy") → @hd.NgayHetHan?.ToString("dd/MM/yyyy")</p>
 
             @{
-                // ✅ KHÔNG tạo giả nữa
                 var lichTraTam = hd.LichTra ?? new List<VAYTIEN.Models.LichTraViewModel>();
 
                 var kyCanThanhToan = lichTraTam

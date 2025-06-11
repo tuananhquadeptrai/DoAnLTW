@@ -23,6 +23,7 @@
                     <th>Ngày vay</th>
                     <th>Ngày hết hạn</th>
                     <th>Số tiền vay</th>
+                    <th>Số tiền còn lại</th> @* ✅ Thêm cột mới *@
                     <th>Kỳ hạn (tháng)</th>
                     <th>Trạng thái</th>
                 </tr>
@@ -36,6 +37,7 @@
                         <td>@h.NgayVay?.ToString("dd/MM/yyyy")</td>
                         <td>@h.NgayHetHan?.ToString("dd/MM/yyyy")</td>
                         <td>@string.Format("{0:N0} đ", h.SoTienVay)</td>
+                        <td>@string.Format("{0:N0} đ", h.SoTienConLai ?? 0)</td> @* ✅ Hiển thị SoTienConLai *@
                         <td>@h.KyHanThang</td>
                         <td>
                             @if (h.TinhTrang == "Đã duyệt")
