@@ -1,0 +1,59 @@
+﻿@model VAYTIEN.Models.ThongTinVayViewModel
+
+
+<h2 class="text-primary">Thông Tin Tất Cả Hợp Đồng Vay</h2>
+<p class="alert alert-info"><strong>Tổng số tiền đã vay:</strong> @Model.TongSoTienVay.ToString("N0") VNĐ</p>
+
+@foreach (var hd in Model.HopDongs)
+{
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <strong>Hợp đồng #@hd.MaHopDong</strong> — @hd.SoTienVay?.ToString("N0") VNĐ
+        </div>
+        <div class="card-body">
+            <p><strong>Thời gian vay:</strong> @hd.NgayVay?.ToString("dd/MM/yyyy") → @hd.NgayHetHan?.ToString("dd/MM/yyyy")</p>
+
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kỳ hạn</th>
+                        <th>Ngày trả</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thanh toán</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in hd.LichTra)
+                    {
+                        <tr>
+                            <td>@item.KyHanThu</td>
+                            <td>@item.NgayTra?.ToString("dd/MM/yyyy")</td>
+                            <td>@item.SoTienPhaiTra?.ToString("N0") VNĐ</td>
+                            <td>
+                                @if (item.TrangThai == "Đã trả")
+                                {
+                                    <span class="badge bg-success">Đã trả</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">@item.TrangThai</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.TrangThai != "Đã trả")
+                                {
+                                    <form method="post" asp-controller="ThanhToan" asp-action="ThanhToanLich">
+                                        <input type="hidden" name="MaHopDong" value="@hd.MaHopDong" />
+                                        <input type="hidden" name="KyHan" value="@item.KyHanThu" />
+                                        <button type="submit" class="btn btn-sm btn-primary">Thanh toán</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

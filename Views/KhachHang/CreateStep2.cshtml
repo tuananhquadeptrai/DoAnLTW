@@ -8,7 +8,8 @@
 <form asp-action="CreateStep2" method="post">
     <div class="mb-3">
         <label>Loại vay</label>
-        <select asp-for="MaLoaiVay" class="form-select">
+        <select asp-for="MaLoaiVay" class="form-select" required>
+            <option value="">-- Chọn loại vay --</option>
             @foreach (var item in loaiVayList!)
             {
                 <option value="@item.MaLoaiVay">@item.TenLoaiVay</option>
@@ -18,7 +19,8 @@
 
     <div class="mb-3">
         <label>Loại tiền</label>
-        <select asp-for="MaLoaiTienTe" class="form-select">
+        <select asp-for="MaLoaiTienTe" class="form-select" required>
+            <option value="">-- Chọn loại tiền --</option>
             @foreach (var item in loaiTienList!)
             {
                 <option value="@item.MaLoaiTienTe">@item.TenLoaiTienTe</option>
@@ -28,7 +30,7 @@
 
     <div class="mb-3">
         <label>Số tiền vay</label>
-        <select asp-for="SoTienVay" class="form-select">
+        <select asp-for="SoTienVay" class="form-select" required>
             <option value="">-- Chọn hạn mức --</option>
             <option value="10000000">10 triệu</option>
             <option value="20000000">20 triệu</option>
@@ -39,8 +41,13 @@
     </div>
 
     <div class="mb-3">
+        <label>Ngày vay</label>
+        <input asp-for="NgayVay" type="date" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
         <label>Hình thức trả</label>
-        <select name="HinhThucTra" class="form-select">
+        <select asp-for="HinhThucTra" class="form-select" required>
             <option value="">-- Chọn hình thức trả --</option>
             <option value="Trả góp hàng tháng">Trả góp hàng tháng</option>
             <option value="Trả một lần cuối kỳ">Trả một lần cuối kỳ</option>
@@ -48,11 +55,29 @@
         </select>
     </div>
 
-    <h5>Tài sản thế chấp</h5>
     <div class="mb-3">
-        <input name="TenTaiSan" placeholder="Tên tài sản" class="form-control" />
-        <input name="GiaTri" placeholder="Giá trị" class="form-control mt-2" />
-        <textarea name="MoTa" placeholder="Mô tả" class="form-control mt-2"></textarea>
+        <label>Kỳ hạn vay (tháng)</label>
+        <select asp-for="KyHanThang" class="form-select" required>
+            <option value="">-- Chọn kỳ hạn --</option>
+            <option value="6">6 tháng</option>
+            <option value="9">9 tháng</option>
+            <option value="12">12 tháng</option>
+            <option value="15">15 tháng</option>
+            <option value="18">18 tháng</option>
+            <option value="24">24 tháng</option>
+            <option value="36">36 tháng</option>
+        </select>
+    </div>
+
+    <h5 class="mt-4">Tài sản thế chấp</h5>
+    <div class="mb-3">
+        <input name="TenTaiSan" placeholder="Tên tài sản" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <input name="GiaTri" placeholder="Giá trị (VNĐ)" class="form-control" type="number" required />
+    </div>
+    <div class="mb-3">
+        <textarea name="MoTa" placeholder="Mô tả tài sản" class="form-control" rows="3"></textarea>
     </div>
 
     <button type="submit" class="btn btn-success">Gửi yêu cầu phê duyệt</button>
