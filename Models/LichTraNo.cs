@@ -7,7 +7,7 @@ public partial class LichTraNo
 {
     public int MaLich { get; set; }
 
-    public int? MaHopDong { get; set; }
+    public int MaHopDong { get; set; }
 
     public int? KyHanThu { get; set; }
 

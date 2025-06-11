@@ -47,6 +47,19 @@ public partial class QlvayTienContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Sdt).HasMaxLength(20).IsUnicode(false).HasColumnName("SDT");
         });
 
+        modelBuilder.Entity<LichTraNo>(entity =>
+        {
+            entity.ToTable("LichTraNo");
+            entity.HasKey(e => e.MaLich);
+
+            entity.HasOne(e => e.MaHopDongNavigation)
+                .WithMany(h => h.LichTraNos)
+                .HasForeignKey(e => e.MaHopDong)
+                .HasConstraintName("FK_LichTraNo_HopDongVay")
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+
         modelBuilder.Entity<GiaoDich>(entity =>
         {
             entity.ToTable("GiaoDich");

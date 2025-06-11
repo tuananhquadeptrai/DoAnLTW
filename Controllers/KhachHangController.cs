@@ -163,7 +163,7 @@ namespace VAYTIEN.Controllers
             var email = User.Identity?.Name;
             var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(kh => kh.Email == email);
             if (khachHang == null) return RedirectToAction("CreateStep1");
-
+                
             var hopDongs = await _context.HopDongVays
                 .Where(h => h.MaKh == khachHang.MaKh && h.TinhTrang == "Đã duyệt")
                 .Include(h => h.LichTraNos)
@@ -185,8 +185,9 @@ namespace VAYTIEN.Controllers
                         KyHanThu = l.KyHanThu ?? 0,
                         NgayTra = l.NgayTra,
                         SoTienPhaiTra = l.SoTienPhaiTra,
-                        TrangThai = l.TrangThai
+                        TrangThai = string.IsNullOrWhiteSpace(l.TrangThai) ? "Chưa trả" : l.TrangThai // ✅ Rất quan trọng
                     }).OrderBy(x => x.KyHanThu).ToList()
+
                 }).ToList()
             };
 
