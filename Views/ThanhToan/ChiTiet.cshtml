@@ -1,0 +1,55 @@
+﻿@model VAYTIEN.Models.ThanhToanViewModel
+
+<h2 class="text-primary">Xác nhận thanh toán</h2>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Tên khách hàng</dt>
+            <dd class="col-sm-8">@Model.TenKhachHang</dd>
+
+            <dt class="col-sm-4">Kỳ hạn</dt>
+            <dd class="col-sm-8">@Model.KyHan</dd>
+
+            <dt class="col-sm-4">Ngày trả</dt>
+            <dd class="col-sm-8">@Model.NgayTra.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-4">Số tiền</dt>
+            <dd class="col-sm-8">@Model.SoTienPhaiTra.ToString("N0") VNĐ</dd>
+
+            <dt class="col-sm-4">Trạng thái</dt>
+            <dd class="col-sm-8">
+                <span class="badge bg-@(Model.TrangThai == "Đã trả" ? "success" : "warning text-dark")">
+                    @Model.TrangThai
+                </span>
+            </dd>
+        </dl>
+
+        @if (Model.TrangThai != "Đã trả")
+        {
+            <form asp-action="ThucHien" method="post">
+                <input type="hidden" name="MaHopDong" value="@Model.MaHopDong" />
+                <input type="hidden" name="KyHanThu" value="@Model.KyHan" />
+                <input type="hidden" name="SoTienPhaiTra" value="@Model.SoTienPhaiTra" />
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Chọn phương thức thanh toán:</strong></label><br />
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="PhuongThuc" value="Momo" checked />
+                        <label class="form-check-label">Momo</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="PhuongThuc" value="VNPAY" />
+                        <label class="form-check-label">VNPAY</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success">Xác nhận thanh toán</button>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-info">Khoản vay này đã được thanh toán.</div>
+        }
+    </div>
+</div>

@@ -1,5 +1,4 @@
 ﻿namespace VAYTIEN.Models
-
 {
     public class ThongTinVayViewModel
     {
@@ -12,7 +11,11 @@
         public int MaHopDong { get; set; }
         public decimal? SoTienVay { get; set; }
         public DateOnly? NgayVay { get; set; }
-        public DateOnly? NgayHetHan { get; set; }
+            public DateOnly? NgayHetHan { get; set; }
+
+        public int? KyHanThang { get; set; }     
+        public double? LaiSuat { get; set; }     
+
         public List<LichTraViewModel> LichTra { get; set; }
     }
 
