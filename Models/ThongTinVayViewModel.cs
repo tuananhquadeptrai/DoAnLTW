@@ -12,6 +12,7 @@
         public decimal? SoTienVay { get; set; }
         public DateOnly? NgayVay { get; set; }
             public DateOnly? NgayHetHan { get; set; }
+        public decimal? SoTienConLai { get; set; }
 
         public int? KyHanThang { get; set; }     
         public double? LaiSuat { get; set; }     
