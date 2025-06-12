@@ -14,7 +14,7 @@ public partial class HopDongVay
     public int? MaLoaiTienTe { get; set; }
 
     public decimal? SoTienVay { get; set; }
-
+    public decimal? SoTienConLai { get; set; }
     public DateOnly? NgayVay { get; set; }
 
     public DateOnly? NgayHetHan { get; set; }
@@ -28,6 +28,7 @@ public partial class HopDongVay
     public string? TinhTrang { get; set; }
 
     public virtual ICollection<LichTraNo> LichTraNos { get; set; } = new List<LichTraNo>();
+
 
     public virtual KhachHang? MaKhNavigation { get; set; }
 
