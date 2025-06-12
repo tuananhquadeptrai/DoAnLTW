@@ -11,11 +11,13 @@ public class ThanhToanController : Controller
 {
     private readonly QlvayTienContext _context;
     private readonly MoMoService _momoService;
+    private readonly VnpayService _vnpayService;
 
-    public ThanhToanController(QlvayTienContext context, MoMoService momoService)
+    public ThanhToanController(QlvayTienContext context, MoMoService momoService, VnpayService vnpayService)
     {
         _context = context;
         _momoService = momoService;
+        _vnpayService = vnpayService;
     }
 
     // GET: /ThanhToan/ChiTiet?maHopDong=11&kyHanThu=1
@@ -67,9 +69,7 @@ public class ThanhToanController : Controller
         {
             try
             {
-                // =================================================================================
-                // SỬA LỖI TRÙNG ORDERID: Thêm một chuỗi ngẫu nhiên để orderId luôn là duy nhất
-                // =================================================================================
+
                 string orderId = $"{model.MaHopDong}_{model.KyHan}_{Guid.NewGuid().ToString().Substring(0, 8)}";
 
                 string orderInfo = $"Thanh toan HD#{model.MaHopDong} Ky#{model.KyHan}";
@@ -85,6 +85,18 @@ public class ThanhToanController : Controller
                 return RedirectToAction("ChiTiet", new { maHopDong = model.MaHopDong, kyHanThu = model.KyHan });
             }
         }
+        if (model.PhuongThuc == "VNPAY")
+        {
+            // Tạo orderId duy nhất giống như MoMo
+            string orderId = $"{model.MaHopDong}_{model.KyHan}_{Guid.NewGuid().ToString().Substring(0, 8)}";
+            string orderInfo = $"Thanh toan HD#{model.MaHopDong} Ky#{model.KyHan}";
+            string returnUrl = Url.Action("VnpayReturn", "ThanhToan", null, Request.Scheme)!;
+
+            var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            var payUrl = _vnpayService.CreatePaymentUrl((long)model.SoTienPhaiTra, orderId, orderInfo, clientIp);
+            return Redirect(payUrl);
+        }
+
 
         TempData["Error"] = "Vui lòng chọn phương thức thanh toán.";
         return RedirectToAction("ChiTiet", new { maHopDong = model.MaHopDong, kyHanThu = model.KyHan });
@@ -132,6 +144,31 @@ public class ThanhToanController : Controller
 
         return NoContent();
     }
+    public async Task<IActionResult> VnpayReturn()
+    {
+        var queryCollection = Request.Query;
+        if (queryCollection.Count > 0 && queryCollection.ContainsKey("vnp_ResponseCode") && queryCollection["vnp_ResponseCode"] == "00")
+        {
+            var orderId = queryCollection["vnp_TxnRef"].ToString();
+
+            var success = await ProcessSuccessfulPaymentAndUpdateDbAsync(orderId);
+            if (success)
+            {
+                TempData["Success"] = "Thanh toán VNPay thành công! Dư nợ của bạn đã được cập nhật.";
+            }
+            else
+            {
+                TempData["Error"] = "Giao dịch đã được xử lý trước đó hoặc có lỗi xảy ra.";
+            }
+        }
+        else
+        {
+            TempData["Error"] = "Thanh toán VNPay không thành công hoặc đã bị hủy.";
+        }
+
+        return RedirectToAction("ThongTinVay", "KhachHang");
+    }
+
 
     // Hàm dùng chung để xử lý và cập nhật database
     private async Task<bool> ProcessSuccessfulPaymentAndUpdateDbAsync(string orderId)
@@ -153,7 +190,20 @@ public class ThanhToanController : Controller
                 lichTra.TrangThai = "Đã trả";
                 lichTra.NgayTra = DateOnly.FromDateTime(DateTime.Now);
 
-                // Lưu thay đổi trạng thái kỳ trả nợ
+                // --- Cập nhật số tiền còn lại ---
+                var hopDong = await _context.HopDongVays.FirstOrDefaultAsync(h => h.MaHopDong == maHopDong);
+                if (hopDong != null && lichTra.SoTienPhaiTra.HasValue)
+                {
+                    // Nếu SoTienConLai null thì mặc định bằng SoTienVay
+                    if (!hopDong.SoTienConLai.HasValue && hopDong.SoTienVay.HasValue)
+                    {
+                        hopDong.SoTienConLai = hopDong.SoTienVay;
+                    }
+                    // Trừ tiền kỳ hạn vừa trả (không âm)
+                    hopDong.SoTienConLai = Math.Max(0, (hopDong.SoTienConLai ?? 0) - lichTra.SoTienPhaiTra.Value);
+                }
+
+                // Lưu thay đổi trạng thái kỳ trả nợ + hợp đồng
                 await _context.SaveChangesAsync();
 
                 return true;
@@ -167,4 +217,5 @@ public class ThanhToanController : Controller
 
         return false;
     }
+
 }
