@@ -9,10 +9,13 @@ public class ThanhToanController : Controller
 {
     private readonly QlvayTienContext _context;
     private readonly MoMoService _momoService;
-    public ThanhToanController(QlvayTienContext context, MoMoService momoService)
+    private readonly VnpayService _vnpayService;
+
+    public ThanhToanController(QlvayTienContext context, MoMoService momoService, VnpayService vnpayService)
     {
         _context = context;
         _momoService = momoService;
+        _vnpayService = vnpayService;
     }
 
     // GET: /ThanhToan/ChiTiet?maHopDong=11&kyHanThu=1
@@ -52,21 +55,15 @@ public class ThanhToanController : Controller
         {
             if (model.PhuongThuc == "Momo")
             {
-                try
-                {
-                    string orderId = $"{model.MaHopDong}_{model.KyHan}";
-                    string orderInfo = $"Thanh toán lãi kỳ {model.KyHan} hợp đồng {model.MaHopDong}";
-                    string returnUrl = Url.Action("MoMoReturn", "ThanhToan", null, Request.Scheme);
-                    string notifyUrl = Url.Action("MoMoNotify", "ThanhToan", null, Request.Scheme);
 
-                    var payUrl = await _momoService.CreatePaymentAsync(orderId, (long)model.SoTienPhaiTra, orderInfo, returnUrl, notifyUrl);
-                    return Redirect(payUrl);
-                }
-                catch (Exception ex)
-                {
-                    TempData["Error"] = "Không kết nối được MoMo: " + ex.Message;
-                    return RedirectToAction("ChiTiet", new { maHopDong = model.MaHopDong, kyHanThu = model.KyHan });
-                }
+                string orderId = $"{model.MaHopDong}_{model.KyHan}_{Guid.NewGuid().ToString().Substring(0, 8)}";
+
+                string orderInfo = $"Thanh toan HD#{model.MaHopDong} Ky#{model.KyHan}";
+                string returnUrl = Url.Action("MoMoReturn", "ThanhToan", null, Request.Scheme)!;
+                string notifyUrl = Url.Action("MoMoNotify", "ThanhToan", null, Request.Scheme)!;
+
+                var payUrl = await _momoService.CreatePaymentAsync(orderId, (long)model.SoTienPhaiTra, orderInfo, returnUrl, notifyUrl);
+                return Redirect(payUrl);
             }
 
             else if (model.PhuongThuc == "VNPAY")
@@ -80,6 +77,18 @@ public class ThanhToanController : Controller
             lichTra.NgayTra = DateOnly.FromDateTime(DateTime.Now);
             await _context.SaveChangesAsync();
         }
+        if (model.PhuongThuc == "VNPAY")
+        {
+            // Tạo orderId duy nhất giống như MoMo
+            string orderId = $"{model.MaHopDong}_{model.KyHan}_{Guid.NewGuid().ToString().Substring(0, 8)}";
+            string orderInfo = $"Thanh toan HD#{model.MaHopDong} Ky#{model.KyHan}";
+            string returnUrl = Url.Action("VnpayReturn", "ThanhToan", null, Request.Scheme)!;
+
+            var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            var payUrl = _vnpayService.CreatePaymentUrl((long)model.SoTienPhaiTra, orderId, orderInfo, clientIp);
+            return Redirect(payUrl);
+        }
+
 
         return RedirectToAction("ThongTinVay", "KhachHang");
     }
@@ -162,6 +171,33 @@ public class ThanhToanController : Controller
        
         return Ok();
     }
+    public async Task<IActionResult> VnpayReturn()
+    {
+        var queryCollection = Request.Query;
+        if (queryCollection.Count > 0 && queryCollection.ContainsKey("vnp_ResponseCode") && queryCollection["vnp_ResponseCode"] == "00")
+        {
+            var orderId = queryCollection["vnp_TxnRef"].ToString();
+
+            var success = await ProcessSuccessfulPaymentAndUpdateDbAsync(orderId);
+            if (success)
+            {
+                TempData["Success"] = "Thanh toán VNPay thành công! Dư nợ của bạn đã được cập nhật.";
+            }
+            else
+            {
+                TempData["Error"] = "Giao dịch đã được xử lý trước đó hoặc có lỗi xảy ra.";
+            }
+        }
+        else
+        {
+            TempData["Error"] = "Thanh toán VNPay không thành công hoặc đã bị hủy.";
+        }
+
+        return RedirectToAction("ThongTinVay", "KhachHang");
+    }
+
+
+    // Hàm dùng chung để xử lý và cập nhật database
     private async Task<bool> ProcessSuccessfulPaymentAndUpdateDbAsync(string orderId)
     {
         try
@@ -208,4 +244,5 @@ public class ThanhToanController : Controller
 
         return false;
     }
+
 }
