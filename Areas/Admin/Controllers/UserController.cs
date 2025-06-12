@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VAYTIEN.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace VAYTIEN.Areas.Admin.Controllers
 {
+    // Đảm bảo chỉ có Admin mới có quyền truy cập chức năng này
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -14,29 +20,50 @@ namespace VAYTIEN.Areas.Admin.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        // GET: Admin/User
+        // Hiển thị trang danh sách tất cả người dùng
+        public async Task<IActionResult> Index()
         {
-            var users = _userManager.Users.ToList();
+            var currentUser = await _userManager.GetUserAsync(User);
+            // Lấy danh sách người dùng, trừ tài khoản admin đang đăng nhập
+            var users = await _userManager.Users
+                                        .Where(u => u.Id != currentUser.Id)
+                                        .ToListAsync();
             return View(users);
         }
 
+        // POST: Admin/User/ToggleLock/some-guid-id
+        // Xử lý khi admin bấm nút Khóa/Mở khóa
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleLock(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null) return NotFound();
-
-            if (user.LockoutEnd != null && user.LockoutEnd > DateTime.Now)
+            if (string.IsNullOrEmpty(id))
             {
-                user.LockoutEnd = null; // mở khóa
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Kiểm tra xem tài khoản có đang bị khóa hay không
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                // Nếu đang bị khóa -> Mở khóa
+                await _userManager.SetLockoutEndDateAsync(user, null);
+                TempData["Success"] = $"Đã mở khóa tài khoản cho người dùng {user.UserName}.";
             }
             else
             {
-                user.LockoutEnd = DateTime.Now.AddYears(100); // khóa vĩnh viễn
+                // Nếu chưa bị khóa -> Khóa vĩnh viễn (bằng cách đặt ngày hết hạn trong tương lai rất xa)
+                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now.AddYears(100));
+                TempData["Success"] = $"Đã khóa tài khoản của người dùng {user.UserName}.";
             }
 
-            await _userManager.UpdateAsync(user);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }
