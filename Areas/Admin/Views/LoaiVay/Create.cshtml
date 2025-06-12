@@ -1,0 +1,13 @@
+﻿@model VAYTIEN.Models.LoaiVay
+
+@{
+    ViewData["Title"] = "Tạo mới Sản phẩm Vay";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@* Gọi Partial View để hiển thị form *@
+<partial name="_LoaiVayFormPartial" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
