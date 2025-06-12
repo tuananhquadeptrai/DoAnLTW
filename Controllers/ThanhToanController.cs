@@ -7,10 +7,12 @@ public class ThanhToanController : Controller
 {
     private readonly QlvayTienContext _context;
     private readonly MoMoService _momoService;
-    public ThanhToanController(QlvayTienContext context, MoMoService momoService)
+    private readonly VnpayService _vnpayService;
+    public ThanhToanController(QlvayTienContext context, MoMoService momoService, VnpayService vnpayService)
     {
         _context = context;
         _momoService = momoService;
+        _vnpayService = vnpayService;
     }
 
     // GET: /ThanhToan/ChiTiet?maHopDong=11&kyHanThu=1
@@ -52,7 +54,7 @@ public class ThanhToanController : Controller
             {
                 try
                 {
-                    string orderId = $"{model.MaHopDong}_{model.KyHan}";
+                    string orderId = $"{model.MaHopDong}_{model.KyHan}_{Guid.NewGuid().ToString().Substring(0, 8)}";
                     string orderInfo = $"Thanh toán lãi kỳ {model.KyHan} hợp đồng {model.MaHopDong}";
                     string returnUrl = Url.Action("MoMoReturn", "ThanhToan", null, Request.Scheme);
                     string notifyUrl = Url.Action("MoMoNotify", "ThanhToan", null, Request.Scheme);
@@ -69,8 +71,11 @@ public class ThanhToanController : Controller
 
             else if (model.PhuongThuc == "VNPAY")
             {
-                // Tích hợp tương tự cho VNPAY nếu có
-                return Redirect($"https://vnpay.vn/pay?amount={model.SoTienPhaiTra}&ref={model.MaHopDong}-{model.KyHan}");
+                string orderId = $"{model.MaHopDong}_{model.KyHan}";
+                string orderInfo = $"Thanh toán lãi kỳ {model.KyHan} hợp đồng {model.MaHopDong}";
+                string clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var payUrl = _vnpayService.CreatePaymentUrl((long)model.SoTienPhaiTra, orderId, orderInfo, clientIp);
+                return Redirect(payUrl);
             }
 
             // Nếu không chọn cổng nào, xử lý nội bộ (không khuyến nghị)
@@ -81,6 +86,35 @@ public class ThanhToanController : Controller
 
         return RedirectToAction("ThongTinVay", "KhachHang");
     }
+    public async Task<IActionResult> VnpayReturn()
+    {
+        var vnp_ResponseCode = Request.Query["vnp_ResponseCode"];
+        var vnp_TxnRef = Request.Query["vnp_TxnRef"];
+
+        if (vnp_ResponseCode == "00")
+        {
+            // Thanh toán thành công
+            var ids = vnp_TxnRef.ToString().Split('_');
+            int maHopDong = int.Parse(ids[0]);
+            int kyHan = int.Parse(ids[1]);
+            var lichTra = await _context.LichTraNos
+                .FirstOrDefaultAsync(x => x.MaHopDong == maHopDong && x.KyHanThu == kyHan);
+
+            if (lichTra != null)
+            {
+                lichTra.TrangThai = "Đã trả";
+                lichTra.NgayTra = DateOnly.FromDateTime(DateTime.Now);
+                await _context.SaveChangesAsync();
+            }
+            ViewBag.Message = "Thanh toán thành công qua VNPAY!";
+        }
+        else
+        {
+            ViewBag.Message = "Thanh toán thất bại hoặc bị hủy.";
+        }
+        return View();
+    }
+
     // Action MoMo chuyển về sau khi thanh toán (redirect khách)
     public async Task<IActionResult> MoMoReturn()
     {
