@@ -1,0 +1,529 @@
+﻿@model VAYTIEN.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Thông tin cá nhân";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Đảm bảo có layout nếu bạn muốn dùng
+    
+    // Lấy danh sách Đối tượng vay từ ViewBag
+    var doiTuongVayList = ViewBag.DoiTuongVayList as List<VAYTIEN.Models.DoiTuongVay>;
+}
+
+<style>
+    /* Tổng quan */
+    .edit-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .edit-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .edit-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+    }
+
+        .edit-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .edit-header h2 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .edit-header .subtitle {
+            margin-top: 10px;
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+    .edit-body {
+        padding: 40px;
+    }
+
+    .form-section {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8f0fe 100%);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-icon {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        .form-control[readonly] {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+            color: #718096;
+        }
+
+    .avatar-section {
+        text-align: center;
+        padding: 30px;
+        background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+        border-radius: 15px;
+        border: 2px dashed #667eea;
+        margin-bottom: 20px;
+    }
+
+    .avatar-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 6px solid white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+
+        .avatar-preview:hover {
+            transform: scale(1.05);
+        }
+
+    .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+        .file-input-wrapper:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .btn-modern {
+        padding: 15px 35px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: none;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+    .btn-secondary-modern {
+        background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        color: white;
+    }
+
+        .btn-secondary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(113, 128, 150, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+        border: 1px solid #fc8181;
+        border-radius: 12px;
+        color: #742a2a;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    @@media (max-width: 768px) {
+        .edit-header h2 {
+            font-size: 1.8rem;
+        }
+
+        .edit-body {
+            padding: 20px;
+        }
+
+        .form-section {
+            padding: 20px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-modern {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+        }
+    }
+</style>
+
+<div class="edit-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="edit-card">
+                    <div class="edit-header">
+                        <h2><i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]</h2>
+                        <p class="subtitle">Cập nhật thông tin cá nhân của bạn</p>
+                    </div>
+
+                    <div class="edit-body">
+                        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+
+                            @if (ViewData.ModelState.Count > 0 && !ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <strong>Có lỗi xảy ra:</strong>
+                                    <div asp-validation-summary="ModelOnly"></div>
+                                </div>
+                            }
+
+                            <input type="hidden" asp-for="MaKh" />
+                            <input type="hidden" asp-for="AnhDinhKem" /> @* QUAN TRỌNG: Giữ lại dòng này để gửi đường dẫn ảnh cũ nếu không chọn file mới *@
+                            
+                            <div class="avatar-section">
+                                <div class="section-title">
+                                    <div class="section-icon">
+                                        <i class="bi bi-camera-fill"></i>
+                                    </div>
+                                    Ảnh đại diện
+                                </div>
+                                @* Đảm bảo hiển thị ảnh hiện có hoặc ảnh mặc định *@
+                                <img src="@(string.IsNullOrEmpty(Model.AnhDinhKem) ? "/images/default-avatar.png" : Model.AnhDinhKem)"
+                                     id="imagePreview"
+                                     class="avatar-preview"
+                                     alt="Ảnh đại diện" />
+                                <div class="file-input-wrapper">
+                                    <i class="bi bi-upload me-2"></i>
+                                    Chọn ảnh mới
+                                    <input type="file" name="anhFile" accept="image/*" onchange="previewImage(event)" />
+                                </div>
+                                <div class="mt-2 text-muted">
+                                    <small>Chấp nhận: JPG, PNG. Tối đa 5MB</small>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <div class="section-icon">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    Thông tin cá nhân
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="HoTen" class="form-label">Họ và tên</label>
+                                            <input asp-for="HoTen" class="form-control" placeholder="Nhập họ và tên" />
+                                            <span asp-validation-for="HoTen" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="CmndCccd" class="form-label">CMND/CCCD</label>
+                                            <input asp-for="CmndCccd" class="form-control" placeholder="Nhập số CMND/CCCD" />
+                                            <span asp-validation-for="CmndCccd" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="NgaySinh" class="form-label">Ngày sinh</label>
+                                            <input asp-for="NgaySinh" class="form-control" type="date" value="@Model.NgaySinh?.ToString("yyyy-MM-dd")" />
+                                            <span asp-validation-for="NgaySinh" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="TinhTrangHonNhan" class="form-label">Tình trạng hôn nhân</label>
+                                            <select asp-for="TinhTrangHonNhan" class="form-select">
+                                                <option value="">-- Chọn tình trạng --</option>
+                                                @{
+                                                    // SỬA LỖI RZ1031 TẠI ĐÂY BẰNG CÁCH SỬ DỤNG KHỐI RAZOR ĐỂ XÂY DỰNG HTML TƯỜNG MINH
+                                                    // Tạo biến để dễ đọc
+                                                    var tinhTrangDocThan = "Độc thân";
+                                                    var tinhTrangDaKetHon = "Đã kết hôn";
+                                                    var tinhTrangLyHon = "Ly hôn";
+
+                                                    // Xây dựng từng thẻ option
+                                                    var selectedDocThan = (Model.TinhTrangHonNhan == tinhTrangDocThan) ? "selected" : "";
+                                                    @Html.Raw($"<option value=\"{tinhTrangDocThan}\" {selectedDocThan}>{tinhTrangDocThan}</option>")
+
+                                                    var selectedDaKetHon = (Model.TinhTrangHonNhan == tinhTrangDaKetHon) ? "selected" : "";
+                                                    @Html.Raw($"<option value=\"{tinhTrangDaKetHon}\" {selectedDaKetHon}>{tinhTrangDaKetHon}</option>")
+
+                                                    var selectedLyHon = (Model.TinhTrangHonNhan == tinhTrangLyHon) ? "selected" : "";
+                                                    @Html.Raw($"<option value=\"{tinhTrangLyHon}\" {selectedLyHon}>{tinhTrangLyHon}</option>")
+                                                }
+                                            </select>
+                                            <span asp-validation-for="TinhTrangHonNhan" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @* Dropdown cho Đối tượng vay *@
+                                @{
+                                    // Lấy danh sách Đối tượng vay từ ViewBag
+                                    var doiTuongVayList = ViewBag.DoiTuongVayList as List<VAYTIEN.Models.DoiTuongVay>;
+                                }
+                                @if (doiTuongVayList != null)
+                                {
+                                    <div class="form-group">
+                                        <label asp-for="DoiTuongVayMaDoiTuongVay" class="form-label">Đối tượng vay</label>
+                                        <select asp-for="DoiTuongVayMaDoiTuongVay" class="form-select">
+                                            <option value="">-- Chọn đối tượng vay --</option>
+                                            @foreach (var doiTuong in doiTuongVayList)
+                                            {
+                                                {
+                                                    // SỬA LỖI RZ1031 TẠI ĐÂY BẰNG CÁCH SỬ DỤNG KHỐI RAZOR ĐỂ XÂY DỰNG HTML TƯỜNG MINH
+                                                    var isSelected = (Model.DoiTuongVayMaDoiTuongVay == doiTuong.MaDoiTuongVay) ? "selected" : "";
+                                                    @Html.Raw($"<option value=\"{doiTuong.MaDoiTuongVay}\" {isSelected}>{doiTuong.TenDoiTuong}</option>")
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="DoiTuongVayMaDoiTuongVay" class="text-danger"></span>
+                                    </div>
+                                }
+
+
+                                <div class="form-group">
+                                    <label asp-for="DiaChi" class="form-label">Địa chỉ</label>
+                                    <input asp-for="DiaChi" class="form-control" placeholder="Nhập địa chỉ đầy đủ" />
+                                    <span asp-validation-for="DiaChi" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="NgheNghiep" class="form-label">Nghề nghiệp</label>
+                                    <input asp-for="NgheNghiep" class="form-control" placeholder="Nhập nghề nghiệp" />
+                                    <span asp-validation-for="NgheNghiep" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <div class="section-icon">
+                                        <i class="bi bi-telephone-fill"></i>
+                                    </div>
+                                    Thông tin liên hệ
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="Sdt" class="form-label">Số điện thoại</label>
+                                            <input asp-for="Sdt" class="form-control" placeholder="Nhập số điện thoại" />
+                                            <span asp-validation-for="Sdt" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="Email" class="form-label">Email</label>
+                                            <input asp-for="Email" class="form-control" readonly />
+                                            <small class="text-muted">Email không thể thay đổi</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-buttons">
+                                <a asp-action="ThongTinCaNhan" asp-route-id="@Model.MaKh" class="btn-modern btn-secondary-modern">
+                                    <i class="bi bi-x-circle"></i>
+                                    Hủy bỏ
+                                </a>
+                                <button type="submit" class="btn-modern btn-primary-modern">
+                                    <i class="bi bi-check-circle"></i>
+                                    Lưu thay đổi
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Hàm xem trước ảnh khi người dùng chọn file mới
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Kiểm tra kích thước file (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
+                    event.target.value = '';
+                    return;
+                }
+
+                // Kiểm tra định dạng file
+                if (!file.type.match('image.*')) {
+                    alert('Vui lòng chọn file ảnh (JPG, PNG, GIF).');
+                    event.target.value = '';
+                    return;
+                }
+
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var output = document.getElementById('imagePreview');
+                    output.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Thêm hiệu ứng loading khi submit form
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Đang lưu...';
+            submitBtn.disabled = true;
+
+            // Nếu validation fail, khôi phục button
+            setTimeout(() => {
+                // Kiểm tra xem có lỗi validation hiển thị không
+                const validationSummary = document.querySelector('.alert.alert-danger');
+                const fieldErrors = document.querySelectorAll('.text-danger:not(:empty)');
+
+                if ((validationSummary && validationSummary.offsetParent !== null) || fieldErrors.length > 0) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            }, 100);
+        });
+
+        // Tự động resize textarea nếu có
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+            // Initial resize in case content is pre-filled
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    </script>
+}

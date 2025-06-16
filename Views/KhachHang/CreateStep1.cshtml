@@ -1,94 +1,437 @@
 ﻿@model VAYTIEN.Models.KhachHang
-
 @{
     ViewData["Title"] = "Đăng ký vay tiền - Bước 1";
     var doiTuongList = ViewBag.DoiTuongVayList as List<VAYTIEN.Models.DoiTuongVay>;
 }
 
-<h2 class="text-center mb-4">@ViewData["Title"]</h2>
+<style>
+    .loan-form-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        padding: 40px;
+        margin: 20px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+    }
+    
+    .form-title {
+        color: #2d3748;
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+        text-align: center;
+        position: relative;
+    }
+    
+    .form-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 2px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-label i {
+        margin-right: 8px;
+        color: #667eea;
+        font-size: 1.1rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background-color: white;
+        outline: none;
+    }
+    
+    .form-control:hover, .form-select:hover {
+        border-color: #cbd5e0;
+        background-color: white;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 15px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+    
+    .file-upload-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .file-upload-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .file-upload-label {
+        display: block;
+        padding: 20px;
+        border: 2px dashed #cbd5e0;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+    }
+    
+    .file-upload-label:hover {
+        border-color: #667eea;
+        background-color: rgba(102, 126, 234, 0.05);
+    }
+    
+    .file-upload-icon {
+        font-size: 2rem;
+        color: #667eea;
+        margin-bottom: 10px;
+    }
+    
+    .file-upload-text {
+        color: #4a5568;
+        font-weight: 500;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+    
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #667eea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin: 0 10px;
+        position: relative;
+    }
+    
+    .step::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        width: 20px;
+        height: 2px;
+        background: #e2e8f0;
+        margin-left: 10px;
+    }
+    
+    .step:last-child::after {
+        display: none;
+    }
+    
+    .step.inactive {
+        background: #e2e8f0;
+        color: #a0aec0;
+    }
+    
+    .row {
+        margin-left: -12px;
+        margin-right: -12px;
+    }
+    
+    .col-md-6 {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: block;
+    }
+    
+    .required {
+        color: #e53e3e;
+    }
+    
+    @@media (max-width: 768px) {
+        .form-card {
+            padding: 25px;
+            margin: 10px;
+            border-radius: 15px;
+        }
+        
+        .form-title {
+            font-size: 1.8rem;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+        }
+    }
+</style>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <form asp-action="CreateStep1" method="post" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="HoTen" class="form-label">Họ và tên</label>
-                    <input asp-for="HoTen" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="CmndCccd" class="form-label">CMND/CCCD</label>
-                    <input asp-for="CmndCccd" class="form-control" />
+<div class="loan-form-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="form-card">
+                    <!-- Step Indicator -->
+                    <div class="step-indicator">
+                        <div class="step">1</div>
+                        <div class="step inactive">2</div>
+                        <div class="step inactive">3</div>
+                    </div>
+                    
+                    <h2 class="form-title">@ViewData["Title"]</h2>
+                    
+                    <form asp-action="CreateStep1" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="HoTen" class="form-label">
+                                        <i class="fas fa-user"></i>
+                                        Họ và tên <span class="required">*</span>
+                                    </label>
+                                    <input asp-for="HoTen" class="form-control" placeholder="Nhập họ và tên đầy đủ" />
+                                    <span asp-validation-for="HoTen" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="CmndCccd" class="form-label">
+                                        <i class="fas fa-id-card"></i>
+                                        CMND/CCCD <span class="required">*</span>
+                                    </label>
+                                    <input asp-for="CmndCccd" class="form-control" placeholder="Nhập số CMND/CCCD" />
+                                    <span asp-validation-for="CmndCccd" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="NgaySinh" class="form-label">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Ngày sinh <span class="required">*</span>
+                                    </label>
+                                    <input asp-for="NgaySinh" class="form-control" type="date" />
+                                    <span asp-validation-for="NgaySinh" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="DiaChi" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        Địa chỉ <span class="required">*</span>
+                                    </label>
+                                    <input asp-for="DiaChi" class="form-control" placeholder="Nhập địa chỉ thường trú" />
+                                    <span asp-validation-for="DiaChi" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Sdt" class="form-label">
+                                        <i class="fas fa-phone"></i>
+                                        Số điện thoại <span class="required">*</span>
+                                    </label>
+                                    <input asp-for="Sdt" class="form-control" placeholder="Nhập số điện thoại" />
+                                    <span asp-validation-for="Sdt" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Email" class="form-label">
+                                        <i class="fas fa-envelope"></i>
+                                        Email <span class="required">*</span>
+                                    </label>
+                                    <input asp-for="Email" class="form-control" type="email" placeholder="Nhập địa chỉ email" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="NgheNghiep" class="form-label">
+                                        <i class="fas fa-briefcase"></i>
+                                        Nghề nghiệp <span class="required">*</span>
+                                    </label>
+                                    <input asp-for="NgheNghiep" class="form-control" placeholder="Nhập nghề nghiệp hiện tại" />
+                                    <span asp-validation-for="NgheNghiep" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="TinhTrangHonNhan" class="form-label">
+                                        <i class="fas fa-heart"></i>
+                                        Tình trạng hôn nhân <span class="required">*</span>
+                                    </label>
+                                    <select asp-for="TinhTrangHonNhan" class="form-select">
+                                        <option value="">-- Chọn tình trạng --</option>
+                                        <option value="Độc thân">Độc thân</option>
+                                        <option value="Đã kết hôn">Đã kết hôn</option>
+                                        <option value="Ly hôn">Ly hôn</option>
+                                    </select>
+                                    <span asp-validation-for="TinhTrangHonNhan" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-users"></i>
+                                Đối tượng vay <span class="required">*</span>
+                            </label>
+                            <select name="DoiTuongVayMaDoiTuongVay" class="form-select">
+                                <option value="">-- Chọn đối tượng vay --</option>
+                                @foreach (var item in doiTuongList)
+                                {
+                                    var selected = Model?.DoiTuongVayMaDoiTuongVay == item.MaDoiTuongVay ? "selected" : "";
+                                    @:<option value="@item.MaDoiTuongVay" @selected>@item.TenDoiTuong</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DoiTuongVayMaDoiTuongVay" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-camera"></i>
+                                Ảnh đính kèm (CMND/CCCD, chân dung...)
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" name="anhFile" class="file-upload-input" accept="image/*" id="fileInput" />
+                                <label for="fileInput" class="file-upload-label">
+                                    <div class="file-upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="file-upload-text">
+                                        <strong>Nhấp để chọn ảnh</strong><br>
+                                        <small>Hỗ trợ định dạng JPG, PNG, GIF (Tối đa 5MB)</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Tiếp tục
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgaySinh" class="form-label">Ngày sinh</label>
-                    <input asp-for="NgaySinh" class="form-control" type="date" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="DiaChi" class="form-label">Địa chỉ</label>
-                    <input asp-for="DiaChi" class="form-control" />
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Sdt" class="form-label">Số điện thoại</label>
-                    <input asp-for="Sdt" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Email" class="form-label">Email</label>
-                    <input asp-for="Email" class="form-control" type="email" />
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgheNghiep" class="form-label">Nghề nghiệp</label>
-                    <input asp-for="NgheNghiep" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="TinhTrangHonNhan" class="form-label">Tình trạng hôn nhân</label>
-                    <select asp-for="TinhTrangHonNhan" class="form-select">
-                        <option value="">-- Chọn --</option>
-                        <option value="Độc thân">Độc thân</option>
-                        <option value="Đã kết hôn">Đã kết hôn</option>
-                        <option value="Ly hôn">Ly hôn</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Đối tượng vay</label>
-                <select name="DoiTuongVayMaDoiTuongVay" class="form-select">
-                    <option value="">-- Chọn đối tượng vay --</option>
-                    @foreach (var item in doiTuongList)
-                    {
-                        var selected = Model?.DoiTuongVayMaDoiTuongVay == item.MaDoiTuongVay ? "selected" : "";
-                        @:<option value="@item.MaDoiTuongVay" @selected>@item.TenDoiTuong</option>
-                    }
-                </select>
-                <span asp-validation-for="DoiTuongVayMaDoiTuongVay" class="text-danger"></span>
-            </div>
-
-
-
-
-
-
-
-            <div class="mb-3">
-                <label class="form-label">Ảnh đính kèm (CMND/CCCD, chân dung...)</label>
-                <input type="file" name="anhFile" class="form-control" accept="image/*" />
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary px-5">Tiếp tục</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<script>
+    // File upload preview
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const label = document.querySelector('.file-upload-text');
+        
+        if (file) {
+            label.innerHTML = `
+                <strong>Đã chọn: ${file.name}</strong><br>
+                <small>Kích thước: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+            `;
+        } else {
+            label.innerHTML = `
+                <strong>Nhấp để chọn ảnh</strong><br>
+                <small>Hỗ trợ định dạng JPG, PNG, GIF (Tối đa 5MB)</small>
+            `;
+        }
+    });
+    
+    // Form validation enhancement
+    document.querySelectorAll('.form-control, .form-select').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.style.borderColor = '#fed7d7';
+            } else {
+                this.style.borderColor = '#9ae6b4';
+            }
+        });
+        
+        input.addEventListener('focus', function() {
+            this.style.borderColor = '#667eea';
+        });
+    });
+</script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

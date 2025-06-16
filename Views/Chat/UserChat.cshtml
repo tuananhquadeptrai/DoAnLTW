@@ -1,0 +1,504 @@
+﻿@{
+    var receiverId = ViewBag.AdminId as string;
+    var selfName = ViewBag.SelfName as string;
+    var selfId = ViewBag.SelfId as string;
+}
+
+<style>
+    .customer-chat-container {
+        max-width: 800px;
+        margin: 20px auto;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .chat-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+    @@keyframes shimmer {
+        0%, 100%
+
+    {
+        transform: translateX(-100%) rotate(45deg);
+    }
+
+    50% {
+        transform: translateX(100%) rotate(45deg);
+    }
+
+    }
+
+    .chat-header-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .admin-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .chat-title {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+    .chat-subtitle {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .chat-window {
+        height: 400px;
+        overflow-y: auto;
+        padding: 20px;
+        background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+        position: relative;
+    }
+
+        .chat-window::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(118, 75, 162, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+    .message-container {
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.3s ease;
+    }
+
+    .message-self {
+        text-align: right;
+    }
+
+    .message-other {
+        text-align: left;
+    }
+
+    .message-bubble {
+        display: inline-block;
+        max-width: 75%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        word-wrap: break-word;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .message-self .message-bubble {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-bottom-right-radius: 6px;
+    }
+
+    .message-other .message-bubble {
+        background: white;
+        color: #333;
+        border: 1px solid #e0e0e0;
+        border-bottom-left-radius: 6px;
+    }
+
+    .message-sender {
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+        opacity: 0.9;
+    }
+
+    .message-text {
+        line-height: 1.4;
+        font-size: 0.95rem;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        opacity: 0.6;
+        margin-top: 6px;
+        font-style: italic;
+    }
+
+    .chat-input-area {
+        padding: 20px 25px;
+        background: white;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .input-container {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        background: #f8f9fa;
+        border-radius: 25px;
+        padding: 6px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+        .input-container:focus-within {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+    .message-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 12px 16px;
+        font-size: 1rem;
+        outline: none;
+        resize: none;
+        max-height: 100px;
+        min-height: 44px;
+        line-height: 1.4;
+    }
+
+    .send-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        min-width: 80px;
+        justify-content: center;
+    }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+    .typing-indicator {
+        display: none;
+        padding: 10px 20px;
+        color: #666;
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    .typing-dots {
+        display: inline-block;
+        animation: typing 1.4s infinite;
+    }
+
+    @@keyframes typing {
+        0%, 60%, 100%
+
+    {
+        opacity: 0.3;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    }
+
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Scrollbar styling */
+    .chat-window::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-window::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-window::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+
+        .chat-window::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+    /* Mobile responsive */
+    @@media (max-width: 768px) {
+        .customer-chat-container
+
+    {
+        margin: 10px;
+        border-radius: 15px;
+    }
+
+    .chat-window {
+        height: 350px;
+    }
+
+    .message-bubble {
+        max-width: 85%;
+    }
+
+    .chat-header {
+        padding: 15px 20px;
+    }
+
+    .chat-input-area {
+        padding: 15px 20px;
+    }
+
+    }
+
+    /* Online status indicator */
+    .online-status {
+        width: 12px;
+        height: 12px;
+        background: #4CAF50;
+        border-radius: 50%;
+        border: 2px solid white;
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    }
+
+    }
+</style>
+
+<div class="customer-chat-container">
+    <!-- Header -->
+    <div class="chat-header">
+        <div class="chat-header-content">
+            <div class="admin-avatar">
+                <i class="bi bi-headset"></i>
+                <div class="online-status"></div>
+            </div>
+            <div>
+                <h3 class="chat-title">Tư vấn viên hỗ trợ</h3>
+                <p class="chat-subtitle">Luôn sẵn sàng hỗ trợ bạn</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window" id="chatWindow">
+        @if (ViewBag.ChatHistory != null)
+        {
+            foreach (var msg in (IEnumerable<VAYTIEN.Models.ChatMessage>)ViewBag.ChatHistory)
+            {
+                <div class="message-container @(msg.SenderId == selfId ? "message-self" : "message-other")">
+                    <div class="message-bubble">
+                        <div class="message-sender">@msg.SenderName</div>
+                        <div class="message-text">@msg.Message</div>
+                        <div class="message-time">@msg.SentAt.ToString("HH:mm dd/MM/yyyy")</div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="message-container message-other">
+                <div class="message-bubble">
+                    <div class="message-sender">Tư vấn viên</div>
+                    <div class="message-text">Xin chào! Tôi có thể giúp gì cho bạn?</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Typing Indicator -->
+    <div class="typing-indicator" id="typingIndicator">
+        Tư vấn viên đang nhập<span class="typing-dots">...</span>
+    </div>
+
+    <!-- Input Area -->
+    <div class="chat-input-area">
+        <div class="input-container">
+            <textarea id="messageInput"
+                      class="message-input"
+                      placeholder="Nhập tin nhắn của bạn..."
+                      autocomplete="off"
+                      rows="1"></textarea>
+            <button class="send-btn" onclick="sendMessage()" id="sendButton">
+                <i class="bi bi-send-fill"></i>
+                Gửi
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+    const receiverId = "@receiverId";
+    const selfId = "@selfId";
+    const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
+    // Nhận tin nhắn
+    connection.on("ReceiveMessage", function (senderId, senderName, message) {
+        const chatWindow = document.getElementById("chatWindow");
+        const messageContainer = document.createElement("div");
+        messageContainer.className = "message-container " + (senderId === selfId ? "message-self" : "message-other");
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString("vi-VN", {hour: '2-digit', minute:'2-digit'}) +
+                          " " + now.toLocaleDateString("vi-VN");
+
+        messageContainer.innerHTML = `
+            <div class="message-bubble">
+                <div class="message-sender">${senderName}</div>
+                <div class="message-text">${message}</div>
+                <div class="message-time">${timeString}</div>
+            </div>
+        `;
+
+        chatWindow.appendChild(messageContainer);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        // Hide typing indicator
+        document.getElementById("typingIndicator").style.display = "none";
+    });
+
+    connection.start().then(function() {
+        console.log("Kết nối SignalR thành công");
+    });
+
+    // Gửi tin nhắn
+    function sendMessage() {
+        const messageInput = document.getElementById("messageInput");
+        const message = messageInput.value.trim();
+        const sendButton = document.getElementById("sendButton");
+
+        if (message) {
+            // Disable button while sending
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
+
+            connection.invoke("SendMessage", receiverId, message)
+                .then(function() {
+                    messageInput.value = "";
+                    adjustTextareaHeight();
+                })
+                .catch(function(err) {
+                    console.error(err.toString());
+                    alert("Có lỗi xảy ra khi gửi tin nhắn!");
+                })
+                .finally(function() {
+                    // Re-enable button
+                    sendButton.disabled = false;
+                    sendButton.innerHTML = '<i class="bi bi-send-fill"></i> Gửi';
+                });
+        }
+    }
+
+    // Auto-resize textarea
+    function adjustTextareaHeight() {
+        const textarea = document.getElementById("messageInput");
+        textarea.style.height = "44px";
+        textarea.style.height = Math.min(textarea.scrollHeight, 100) + "px";
+    }
+
+    // Event listeners
+    document.getElementById("messageInput").addEventListener("input", adjustTextareaHeight);
+
+    document.getElementById("messageInput").addEventListener("keydown", function(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Auto scroll to bottom on page load
+    document.addEventListener("DOMContentLoaded", function() {
+        const chatWindow = document.getElementById("chatWindow");
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    });
+
+    // Simulate typing indicator (optional - can be implemented with SignalR)
+    let typingTimer;
+    document.getElementById("messageInput").addEventListener("input", function() {
+        // Show typing indicator logic here
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function() {
+            // Hide typing indicator after 2 seconds of no typing
+        }, 2000);
+    });
+</script>

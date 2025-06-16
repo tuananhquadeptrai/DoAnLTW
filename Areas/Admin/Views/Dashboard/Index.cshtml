@@ -3,93 +3,443 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="mb-4 fw-bold text-primary">Tổng quan</h2>
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
 
-<!-- Thay đổi layout để có 4 cột trên màn hình lớn (xl) -->
-<div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
 
-    <!-- Card: Yêu cầu chờ duyệt -->
-    <div class="col">
-        <div class="card h-100 shadow-sm border-light-subtle">
-            <div class="card-body d-flex align-items-center">
-                <div class="flex-shrink-0 bg-warning bg-opacity-10 text-warning rounded-circle p-3">
-                    <i class="bi bi-hourglass-split fs-4"></i>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                    <p class="text-muted mb-1">Chờ Phê Duyệt</p>
-                    <h4 class="mb-0">@ViewBag.TotalPending</h4>
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .dashboard-subtitle {
+        opacity: 0.9;
+        font-size: 1.1rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: none;
+    }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-gradient);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.pending {
+            --card-gradient: linear-gradient(135deg, #ff9500 0%, #ff5722 100%);
+        }
+
+        .stat-card.customers {
+            --card-gradient: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);
+        }
+
+        .stat-card.contracts {
+            --card-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .stat-card.balance {
+            --card-gradient: linear-gradient(135deg, #6f42c1 0%, #007bff 100%);
+            border: 2px solid #007bff;
+        }
+
+    .stat-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+        .stat-icon-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: var(--card-gradient);
+            opacity: 0.1;
+        }
+
+    .stat-icon {
+        font-size: 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+        .stat-icon.pending {
+            color: #ff5722;
+        }
+
+        .stat-icon.customers {
+            color: #007bff;
+        }
+
+        .stat-icon.contracts {
+            color: #28a745;
+        }
+
+        .stat-icon.balance {
+            color: #6f42c1;
+        }
+
+    .stat-content {
+        flex-grow: 1;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        line-height: 1;
+    }
+
+        .stat-value.balance {
+            color: #6f42c1;
+        }
+
+    .stat-footer {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .stat-link {
+        display: inline-flex;
+        align-items: center;
+        color: #6c757d;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        background: #f8f9fa;
+    }
+
+        .stat-link:hover {
+            color: white;
+            background: var(--card-gradient);
+            transform: translateX(5px);
+        }
+
+    .quick-actions {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .quick-actions-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .quick-action-btn {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border: none;
+        border-radius: 15px;
+        text-decoration: none;
+        color: #495057;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .quick-action-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+    .quick-action-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .quick-action-btn:hover .quick-action-icon {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .welcome-time {
+        font-size: 1rem;
+        opacity: 0.8;
+        font-weight: 400;
+    }
+
+    @@media (max-width: 768px) {
+        .stats-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+    }
+
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header animate-in">
+        <div class="dashboard-title">
+            <i class="bi bi-speedometer2 me-3"></i>
+            Tổng quan Hệ thống
+        </div>
+        <div class="dashboard-subtitle">
+            Theo dõi và quản lý toàn bộ hoạt động của hệ thống vay tiền
+        </div>
+        <div class="welcome-time mt-2">
+            <i class="bi bi-clock me-2"></i>
+            Cập nhật lúc: <span id="currentTime"></span>
+        </div>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <!-- Card: Yêu cầu chờ duyệt -->
+        <div class="stat-card pending animate-in" style="animation-delay: 0.1s;">
+            <div class="stat-icon-wrapper">
+                <i class="bi bi-hourglass-split stat-icon pending"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Chờ Phê Duyệt</div>
+                <div class="stat-value">@ViewBag.TotalPending</div>
+                <div class="stat-footer">
+                    <a asp-area="Admin" asp-controller="HopDong" asp-action="ChoPheDuyet" class="stat-link">
+                        <span>Xem chi tiết</span>
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
                 </div>
             </div>
-            <div class="card-footer bg-transparent border-0 pt-0 text-end">
-                <a asp-area="Admin" asp-controller="HopDong" asp-action="ChoPheDuyet" class="btn btn-sm btn-outline-secondary">
-                    Xem chi tiết <i class="bi bi-arrow-right-short"></i>
-                </a>
+        </div>
+
+        <!-- Card: Tài khoản khách hàng -->
+        <div class="stat-card customers animate-in" style="animation-delay: 0.2s;">
+            <div class="stat-icon-wrapper">
+                <i class="bi bi-people-fill stat-icon customers"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Tổng Khách Hàng</div>
+                <div class="stat-value">@ViewBag.TotalCustomers</div>
+                <div class="stat-footer">
+                    <a asp-area="Admin" asp-controller="User" asp-action="Index" class="stat-link">
+                        <span>Quản lý</span>
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Tổng hợp đồng -->
+        <div class="stat-card contracts animate-in" style="animation-delay: 0.3s;">
+            <div class="stat-icon-wrapper">
+                <i class="bi bi-journal-text stat-icon contracts"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Tổng Hợp Đồng</div>
+                <div class="stat-value">@ViewBag.TotalContracts</div>
+                <div class="stat-footer">
+                    <a asp-area="Admin" asp-controller="HopDong" asp-action="TongHopDong" class="stat-link">
+                        <span>Xem tất cả</span>
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Số dư tài khoản công ty -->
+        <div class="stat-card balance animate-in" style="animation-delay: 0.4s;">
+            <div class="stat-icon-wrapper">
+                <i class="bi bi-wallet2 stat-icon balance"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Số Dư Công Ty</div>
+                <div class="stat-value balance">
+                    @ViewBag.CompanyBalance.ToString("N0")
+                    <small style="font-size: 1rem; color: #6c757d;">VNĐ</small>
+                </div>
+                <div class="stat-footer">
+                    <a class="stat-link" asp-controller="GiaoDich" asp-action="Index">
+                        <span>Xem giao dịch</span>
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Card: Tài khoản khách hàng -->
-    <div class="col">
-        <div class="card h-100 shadow-sm border-light-subtle">
-            <div class="card-body d-flex align-items-center">
-                <div class="flex-shrink-0 bg-info bg-opacity-10 text-info rounded-circle p-3">
-                    <i class="bi bi-people-fill fs-4"></i>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                    <p class="text-muted mb-1">Tổng Khách Hàng</p>
-                    <h4 class="mb-0">@ViewBag.TotalCustomers</h4>
-                </div>
-            </div>
-            <div class="card-footer bg-transparent border-0 pt-0 text-end">
-                <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn btn-sm btn-outline-secondary">
-                    Quản lý <i class="bi bi-arrow-right-short"></i>
-                </a>
-            </div>
+    <!-- Quick Actions -->
+    <div class="quick-actions animate-in" style="animation-delay: 0.5s;">
+        <div class="quick-actions-title">
+            <i class="bi bi-lightning-fill me-3" style="color: #ffc107;"></i>
+            Thao tác nhanh
         </div>
-    </div>
+        <div class="quick-actions-grid">
+            <a href="#" class="quick-action-btn">
+                <div class="quick-action-icon">
+                    <i class="bi bi-plus-lg"></i>
+                </div>
+                <span>Tạo hợp đồng mới</span>
+            </a>
 
-    <!-- Card: Tổng hợp đồng -->
-    <div class="col">
-        <div class="card h-100 shadow-sm border-light-subtle">
-            <div class="card-body d-flex align-items-center">
-                <div class="flex-shrink-0 bg-success bg-opacity-10 text-success rounded-circle p-3">
-                    <i class="bi bi-journal-text fs-4"></i>
+            <a href="#" class="quick-action-btn">
+                <div class="quick-action-icon">
+                    <i class="bi bi-person-plus"></i>
                 </div>
-                <div class="flex-grow-1 ms-3">
-                    <p class="text-muted mb-1">Tổng Hợp Đồng</p>
-                    <h4 class="mb-0">@ViewBag.TotalContracts</h4>
-                </div>
-            </div>
-            <div class="card-footer bg-transparent border-0 pt-0 text-end">
-                <a asp-area="Admin" asp-controller="HopDong" asp-action="TongHopDong" class="btn btn-sm btn-outline-secondary">
-                    Xem tất cả <i class="bi bi-arrow-right-short"></i>
-                </a>
-            </div>
-        </div>
-    </div>
+                <span>Thêm khách hàng</span>
+            </a>
 
-    <!-- ============================================= -->
-    <!-- THẺ MỚI: HIỂN THỊ SỐ DƯ TÀI KHOẢN CÔNG TY -->
-    <!-- ============================================= -->
-    <div class="col">
-        <div class="card h-100 shadow-sm border-primary">
-            <div class="card-body d-flex align-items-center">
-                <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle p-3">
-                    <i class="bi bi-wallet2 fs-4"></i>
+            <a href="#" class="quick-action-btn">
+                <div class="quick-action-icon">
+                    <i class="bi bi-graph-up"></i>
                 </div>
-                <div class="flex-grow-1 ms-3">
-                    <p class="text-muted mb-1">Số Dư Công Ty</p>
-                    <h4 class="mb-0 text-primary">@ViewBag.CompanyBalance.ToString("N0") <small>VNĐ</small></h4>
+                <span>Xem báo cáo</span>
+            </a>
+
+            <a href="#" class="quick-action-btn">
+                <div class="quick-action-icon">
+                    <i class="bi bi-gear"></i>
                 </div>
-            </div>
-            <div class="card-footer bg-transparent border-0 pt-0 text-end">
-                <!-- Nút này có thể dẫn đến trang Lịch sử giao dịch trong tương lai -->
-                <a class="nav-link active" asp-controller="GiaoDich" asp-action="Index">
-                    <i class="bi bi-house-door"></i> GiaoDich 
-                </a>
-            </div>
+                <span>Cài đặt hệ thống</span>
+            </a>
         </div>
     </div>
 </div>
 
-<!-- Bạn có thể thêm các biểu đồ hoặc bảng biểu khác ở đây -->
+<script>
+    // Cập nhật thời gian hiện tại
+    function updateCurrentTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        document.getElementById('currentTime').textContent = timeString;
+    }
+
+    // Cập nhật thời gian mỗi giây
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+
+    // Thêm hiệu ứng hover cho các card
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+</script>

@@ -10,7 +10,7 @@ namespace VAYTIEN.Models
             : base(options)
         {
         }
-
+        public virtual DbSet<KhachHangAnh> KhachHangAnhs { get; set; }
         public virtual DbSet<ChiNhanhNganHang> ChiNhanhNganHangs { get; set; }
         public virtual DbSet<DoiTuongVay> DoiTuongVays { get; set; }
         public virtual DbSet<GiaoDich> GiaoDiches { get; set; }
@@ -23,7 +23,7 @@ namespace VAYTIEN.Models
         public virtual DbSet<TaiKhoanNganHang> TaiKhoanNganHangs { get; set; }
         public virtual DbSet<TaiSanTheChap> TaiSanTheChaps { get; set; }
         public virtual DbSet<ThanhToanLichTra> ThanhToanLichTras { get; set; }
-
+        public virtual DbSet<ChatMessage> ChatMessages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Bắt buộc phải gọi base.OnModelCreating để cấu hình các bảng của Identity

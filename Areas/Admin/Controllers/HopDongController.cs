@@ -14,32 +14,47 @@ namespace VAYTIEN.Areas.Admin.Controllers
         private readonly EmailSender _emailSender;
         private readonly PdfGenerator _pdfGenerator;
         private readonly IConfiguration _configuration;
+        private readonly IDiemTinDungService _diemTinDungService; // Thêm service chấm điểm
 
-        public HopDongController(QlvayTienContext context, EmailSender emailSender, PdfGenerator pdfGenerator, IConfiguration configuration)
+        public HopDongController(
+            QlvayTienContext context,
+            EmailSender emailSender,
+            PdfGenerator pdfGenerator,
+            IConfiguration configuration,
+            IDiemTinDungService diemTinDungService) // Inject service
         {
             _context = context;
             _emailSender = emailSender;
             _pdfGenerator = pdfGenerator;
             _configuration = configuration;
+            _diemTinDungService = diemTinDungService; // Gán giá trị
         }
 
-        // GET: Admin/HopDong (Trang tổng hợp)
+        // ... Các action Index, ChoPheDuyet giữ nguyên ...
         public async Task<IActionResult> Index()
         {
             var list = await _context.HopDongVays.Include(h => h.MaKhNavigation).Include(h => h.MaLoaiVayNavigation).OrderByDescending(h => h.MaHopDong).ToListAsync();
             return View(list);
         }
-
-        // GET: Admin/HopDong/ChoPheDuyet
         public async Task<IActionResult> ChoPheDuyet()
         {
             var list = await _context.HopDongVays.Include(h => h.MaKhNavigation).Where(h => h.TinhTrang == "Chờ phê duyệt").OrderByDescending(h => h.MaHopDong).ToListAsync();
-
             return View(list);
-
+        }
+        // BỔ SUNG: GET: /Admin/HopDong/TongHopDong
+        public async Task<IActionResult> TongHopDong()
+        {
+            var list = await _context.HopDongVays
+                                     .Include(h => h.MaKhNavigation) // Tải thông tin khách hàng
+                                     .Include(h => h.MaLoaiVayNavigation) // Tải thông tin loại vay
+                                     .OrderByDescending(h => h.NgayVay) // Sắp xếp theo ngày vay mới nhất
+                                     .ThenByDescending(h => h.MaHopDong) // Sau đó theo mã hợp đồng
+                                     .ToListAsync();
+            return View(list);
         }
 
-        // POST: /Admin/HopDong/PheDuyet/5
+
+        // POST: /Admin/HopDong/PheDuyet/5 (ĐÃ HOÀN THIỆN)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PheDuyet(int id)
@@ -55,7 +70,22 @@ namespace VAYTIEN.Areas.Admin.Controllers
                 return RedirectToAction(nameof(ChoPheDuyet));
             }
 
-            // Tự động gán lãi suất nếu trong Hợp đồng chưa có
+            // =======================================================
+            // BƯỚC MỚI: CHẤM ĐIỂM VÀ KIỂM TRA HẠN MỨC
+            // =======================================================
+            await _diemTinDungService.CapNhatDiemVaHanMucAsync(hd.MaKh);
+
+            // Tải lại thông tin khách hàng để lấy điểm và hạn mức mới nhất
+            var khachHang = await _context.KhachHangs.FindAsync(hd.MaKh);
+
+            if (khachHang.HanMucVay.HasValue && hd.SoTienVay > khachHang.HanMucVay.Value)
+            {
+                TempData["Error"] = $"Khoản vay vượt quá hạn mức tín dụng của khách hàng. Hạn mức: {khachHang.HanMucVay:N0} VNĐ. Điểm tín dụng hiện tại: {khachHang.DiemTinDung}.";
+                return RedirectToAction(nameof(ChoPheDuyet));
+            }
+            // =======================================================
+
+
             if (hd.MaLoaiVayNavigation != null && hd.MaLoaiVayNavigation.LaiSuat.HasValue)
             {
                 hd.LaiSuat = (decimal)hd.MaLoaiVayNavigation.LaiSuat.Value;
@@ -63,7 +93,7 @@ namespace VAYTIEN.Areas.Admin.Controllers
 
             if (hd.SoTienVay <= 0 || hd.LaiSuat <= 0 || hd.KyHanThang <= 0)
             {
-                TempData["Error"] = $"Lỗi: Hợp đồng #{id} thiếu thông tin quan trọng hoặc không hợp lệ (Số tiền, Lãi suất, hoặc Kỳ hạn).";
+                TempData["Error"] = $"Lỗi: Hợp đồng #{id} thiếu thông tin quan trọng hoặc không hợp lệ.";
                 return RedirectToAction(nameof(ChoPheDuyet));
             }
 
@@ -71,19 +101,16 @@ namespace VAYTIEN.Areas.Admin.Controllers
             {
                 try
                 {
-                    // === BƯỚC 1: CẬP NHẬT TRẠNG THÁI HỢP ĐỒNG ===
                     hd.TinhTrang = "Đã duyệt";
-                    hd.SoTienConLai = hd.SoTienVay; // Gán số nợ ban đầu
+                    hd.SoTienConLai = hd.SoTienVay;
                     _context.Update(hd);
 
-                    // === BƯỚC 2: TẠO LỊCH TRẢ NỢ CHI TIẾT ===
                     var schedule = GeneratePaymentSchedule(hd);
                     if (schedule.Any())
                     {
                         await _context.LichTraNos.AddRangeAsync(schedule);
                     }
 
-                    // === BƯỚC 3: XỬ LÝ DÒNG TIỀN GIẢI NGÂN ===
                     var companyAccountNumber = _configuration["AppSettings:CompanyBankAccountNumber"];
                     var companyAccount = await _context.TaiKhoanNganHangs.FirstOrDefaultAsync(tk => tk.SoTaiKhoan == companyAccountNumber);
 
@@ -95,42 +122,17 @@ namespace VAYTIEN.Areas.Admin.Controllers
                     }
 
                     var customerAccount = await _context.TaiKhoanNganHangs.FirstOrDefaultAsync(tk => tk.MaKh == hd.MaKh);
-
-                    // Tự động tạo tài khoản cho khách hàng nếu chưa có
                     if (customerAccount == null)
                     {
-                        if (string.IsNullOrEmpty(hd.MaKhNavigation?.Sdt))
-                        {
-                            await transaction.RollbackAsync();
-                            TempData["Error"] = $"Lỗi: Khách hàng '{hd.MaKhNavigation?.HoTen}' chưa có SĐT để tạo tài khoản mặc định.";
-                            return RedirectToAction(nameof(ChoPheDuyet));
-                        }
-
-                        customerAccount = new TaiKhoanNganHang
-                        {
-                            MaKh = hd.MaKh,
-                            SoTaiKhoan = hd.MaKhNavigation.Sdt,
-                            LoaiTaiKhoan = "Tài khoản Thanh toán",
-                            SoDu = 0,
-                            TrangThai = "Hoạt động"
-                        };
+                        customerAccount = new TaiKhoanNganHang { MaKh = hd.MaKh, SoTaiKhoan = hd.MaKhNavigation?.Sdt, LoaiTaiKhoan = "Tài khoản Thanh toán", SoDu = 0, TrangThai = "Hoạt động" };
                         _context.TaiKhoanNganHangs.Add(customerAccount);
                     }
 
-                    decimal loanAmount = hd.SoTienVay;
-                    if (companyAccount.SoDu >= loanAmount)
+                    if (companyAccount.SoDu >= hd.SoTienVay)
                     {
-                        companyAccount.SoDu -= loanAmount;
-                        customerAccount.SoDu += loanAmount;
-
-                        var disbursementTransaction = new GiaoDich
-                        {
-                            MaTaiKhoan = companyAccount.MaTaiKhoan,
-                            NgayGd = DateOnly.FromDateTime(DateTime.Now),
-                            SoTienGd = -loanAmount,
-                            LoaiGd = "Giải ngân",
-                            NoiDungGd = $"Giải ngân cho HĐ #{hd.MaHopDong} của KH {hd.MaKhNavigation?.HoTen}"
-                        };
+                        companyAccount.SoDu -= hd.SoTienVay;
+                        customerAccount.SoDu += hd.SoTienVay;
+                        var disbursementTransaction = new GiaoDich { MaTaiKhoan = companyAccount.MaTaiKhoan, NgayGd = DateOnly.FromDateTime(DateTime.Now), SoTienGd = -hd.SoTienVay, LoaiGd = "Giải ngân", NoiDungGd = $"Giải ngân cho HĐ #{hd.MaHopDong}" };
                         _context.GiaoDiches.Add(disbursementTransaction);
                     }
                     else
@@ -142,11 +144,9 @@ namespace VAYTIEN.Areas.Admin.Controllers
 
                     await _context.SaveChangesAsync();
 
-                    // === BƯỚC 4: TẠO PDF VÀ GỬI EMAIL ===
-                    var pdfPath = _pdfGenerator.GenerateHopDongTinDungPdf(hd, hd.MaKhNavigation);
-                    var emailBody = $@"<p>Kính gửi Quý khách <strong>{hd.MaKhNavigation.HoTen}</strong>,</p>
-                                        <p>Yêu cầu vay vốn của Quý khách đã được phê duyệt và giải ngân thành công.</p>";
-                    await _emailSender.SendEmailAsync(hd.MaKhNavigation.Email, "Thông báo Phê duyệt và Giải ngân Khoản vay", emailBody, pdfPath);
+                    var pdfPath = _pdfGenerator.GenerateHopDongTinDungPdf(hd, khachHang);
+                    var emailBody = $"<p>Kính gửi Quý khách <strong>{khachHang.HoTen}</strong>,</p><p>Yêu cầu vay vốn của Quý khách đã được phê duyệt và giải ngân.</p>";
+                    await _emailSender.SendEmailAsync(khachHang.Email, "Thông báo Phê duyệt Khoản vay", emailBody, pdfPath);
 
                     await transaction.CommitAsync();
                     TempData["Success"] = $"Hợp đồng #{id} đã được duyệt và giải ngân thành công!";
@@ -161,8 +161,10 @@ namespace VAYTIEN.Areas.Admin.Controllers
             return RedirectToAction(nameof(ChoPheDuyet));
         }
 
+        // ... Action TuChoi và GeneratePaymentSchedule giữ nguyên ...
+
         [HttpPost]
-[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TuChoi(int id, string lyDo) // Nhận thêm tham số "lyDo" từ form trong Modal
         {
             // Lấy thông tin hợp đồng, phải Include() cả KhachHang để có Email và Tên
@@ -317,4 +319,8 @@ namespace VAYTIEN.Areas.Admin.Controllers
 
 
     }
+
 }
+
+    
+

@@ -1,73 +1,578 @@
 ﻿@model IEnumerable<VAYTIEN.Models.TaiKhoanNganHang>
-
 @{
     ViewData["Title"] = "Quản lý Tài khoản Khách hàng";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    // Lấy các giá trị lọc hiện tại từ ViewBag để giữ trạng thái của form
+    var currentSearchString = ViewBag.CurrentSearchString as string;
+    var currentStatusFilter = ViewBag.CurrentStatusFilter as string;
+    var currentTypeFilter = ViewBag.CurrentTypeFilter as string;
+    var currentMinBalance = ViewBag.CurrentMinBalance as decimal?;
 }
 
-<div class="card border-0 shadow-lg">
-    <div class="card-header bg-light border-bottom-0 py-3">
-        <h4 class="mb-0 text-primary fw-bold">
-            <i class="bi bi-credit-card-2-front-fill me-2"></i>
-            @ViewData["Title"]
-        </h4>
+<style>
+    /* Tổng quan về kiểu dáng */
+    .gradient-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .card-modern {
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border: none;
+        overflow: hidden;
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 20px;
+        color: white;
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+    }
+
+        .stats-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+        }
+
+    .stats-item {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+        .stats-item:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+    .stats-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .stats-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+
+    .table-modern {
+        background: white;
+    }
+
+        .table-modern thead th {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8edff 100%);
+            border: none;
+            font-weight: 700;
+            color: #4a5568;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            padding: 20px 15px;
+        }
+
+        .table-modern tbody tr {
+            transition: all 0.3s ease;
+            border: none;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+            .table-modern tbody tr:hover {
+                background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+                transform: scale(1.005);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+                border-radius: 8px; /* Áp dụng border-radius khi hover */
+            }
+
+        .table-modern td {
+            padding: 18px 15px;
+            border: none;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        /* Đảm bảo border-radius cuối cùng không bị che */
+        .table-modern tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .customer-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .customer-details h6 {
+        margin: 0;
+        font-weight: 700;
+        color: #2d3748;
+        font-size: 0.95rem;
+    }
+
+    .customer-details small {
+        color: #718096;
+        font-size: 0.8rem;
+    }
+
+    .account-number {
+        background: linear-gradient(135deg, #e8f4f8 0%, #d1ecf1 100%);
+        color: #2b6cb0;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        display: inline-block;
+    }
+
+    .account-type {
+        background: linear-gradient(135deg, #fef5e7 0%, #fed7aa 100%);
+        color: #c05621;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        display: inline-block;
+    }
+
+    .balance-display {
+        font-family: 'Arial', sans-serif;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #2d3748;
+    }
+
+    .balance-positive {
+        color: #48bb78;
+    }
+
+    .balance-negative {
+        color: #f56565;
+    }
+
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-active {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+
+    .status-inactive {
+        background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+        color: #4a5568;
+    }
+
+    .status-suspended {
+        background: linear-gradient(135deg, #fed7d7 0%, #fc8181 100%);
+        color: #c53030;
+    }
+
+    /* DataTables overrides (chỉ các phần liên quan đến form lọc tùy chỉnh) */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 20px; /* Vẫn giữ margin nếu có các element khác ngoài form */
+        display: none; /* Ẩn các control mặc định của DataTables */
+    }
+
+    .filter-section {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8edff 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .filter-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #718096;
+    }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    
+    /* Styles cho các input/select trong filter-section */
+    .filter-section .form-control,
+    .filter-section .form-select {
+        border-radius: 8px; /* Bo tròn các input/select */
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .filter-section .form-control:focus,
+    .filter-section .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .filter-section label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .filter-btn-group {
+        display: flex;
+        gap: 10px; /* Khoảng cách giữa các nút */
+        justify-content: flex-end; /* Căn phải các nút */
+        align-items: flex-end; /* Căn dưới các nút */
+    }
+
+    /* Style cho alert mới tạo bằng JS refreshData */
+    .notification-modern {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        padding: 15px 20px;
+    }
+
+</style>
+
+<div class="stats-card">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="stats-item">
+                <span class="stats-number">@Model.Count()</span>
+                <div class="stats-label">Tổng tài khoản</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-item">
+                <span class="stats-number">@Model.Count(x => x.TrangThai == "Hoạt động")</span>
+                <div class="stats-label">Đang hoạt động</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-item">
+                <span class="stats-number">@Model.Sum(x => x.SoDu).ToString("N0")</span>
+                <div class="stats-label">Tổng số dư (VNĐ)</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-item">
+                <span class="stats-number">@Model.GroupBy(x => x.LoaiTaiKhoan).Count()</span>
+                <div class="stats-label">Loại tài khoản</div>
+            </div>
+        </div>
     </div>
+</div>
+
+<div class="filter-section">
+    <form asp-action="Index" method="get">
+        <div class="row align-items-end g-3">
+            <div class="col-md-3">
+                <label for="searchString" class="form-label fw-semibold">Tìm kiếm (Tên KH / Số TK)</label>
+                <input type="text" id="searchString" name="searchString" value="@currentSearchString" class="form-control" placeholder="Tìm kiếm tài khoản..." />
+            </div>
+            <div class="col-md-3">
+                <label for="statusFilter" class="form-label fw-semibold">Lọc theo trạng thái</label>
+                <select id="statusFilter" name="statusFilter" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Hoạt động">Hoạt động</option>
+                    <option value="Tạm khóa">Tạm khóa</option>
+                    <option value="Đóng">Đóng</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="typeFilter" class="form-label fw-semibold">Lọc theo loại tài khoản</label>
+                <select id="typeFilter" name="typeFilter" class="form-select">
+                    <option value="">Tất cả loại</option>
+                    @foreach (var type in Model.Select(x => x.LoaiTaiKhoan).Where(x => !string.IsNullOrEmpty(x)).Distinct())
+                    {
+               //    <option value="@type" @Html.Raw(currentTypeFilter == type ? "selected" : "")>@type</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="minBalance" class="form-label fw-semibold">Số dư tối thiểu</label>
+                <input type="number" id="minBalance" name="minBalance" value="@currentMinBalance" class="form-control" placeholder="0" min="0" />
+            </div>
+            <div class="col-12 filter-btn-group mt-3">
+                <button type="submit" class="btn filter-btn">
+                    <i class="bi bi-funnel-fill me-2"></i>Áp dụng bộ lọc
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Xóa bộ lọc
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="card card-modern">
+    <div class="card-header gradient-header py-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-1 fw-bold">
+                    <i class="bi bi-bank2 me-2"></i>
+                    @ViewData["Title"]
+                </h4>
+                <p class="mb-0 opacity-75">Quản lý và theo dõi tất cả tài khoản khách hàng</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-light" onclick="exportToExcel()">
+                    <i class="bi bi-file-earmark-excel me-2"></i>Xuất Excel
+                </button>
+                <button type="button" class="btn btn-outline-light" onclick="refreshData()">
+                    <i class="bi bi-arrow-repeat me-2"></i>Làm mới
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table id="customerAccountsTable" class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="text-uppercase small">
-                        <th class="py-3 ps-4">Chủ tài khoản</th>
-                        <th class="py-3">Số tài khoản</th>
-                        <th class="py-3">Loại tài khoản</th>
-                        <th class="py-3 text-end">Số dư</th>
-                        <th class="py-3 text-center">Trạng thái</th>
+            <table id="customerAccountsTable" class="table table-modern mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4" style="width: 25%;">Chủ tài khoản</th>
+                        <th style="width: 20%;">Số tài khoản</th>
+                        <th style="width: 15%;">Loại tài khoản</th>
+                        <th class="text-end" style="width: 20%;">Số dư</th>
+                        <th class="text-center" style="width: 20%;">Trạng thái</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @if (Model.Any())
                     {
-                        <tr>
-                            <td class="ps-4">
-                                <span class="fw-bold">@item.MaKhNavigation?.HoTen</span>
-                            </td>
-                            <td>@item.SoTaiKhoan</td>
-                            <td>@item.LoaiTaiKhoan</td>
-                            <td class="text-end fw-bold">@item.SoDu.ToString("N0") VNĐ</td>
-                            <td class="text-center">
-                                @if (item.TrangThai == "Hoạt động")
-                                {
-                                    <span class="badge bg-success">Hoạt động</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">@item.TrangThai</span>
-                                }
-                            </td>
-                        </tr>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="customer-info">
+                                        <div class="customer-avatar">
+                                            @if (!string.IsNullOrEmpty(item.MaKhNavigation?.HoTen))
+                                            {
+                                                @item.MaKhNavigation.HoTen.Split(' ').LastOrDefault()?.Substring(0, 1).ToUpper()
+                                            }
+                                            else
+                                            {
+                                                <text>?</text>
+                                            }
+                                        </div>
+                                        <div class="customer-details">
+                                            <h6>@(item.MaKhNavigation?.HoTen ?? "Không xác định")</h6>
+                                            <small>Mã KH: @item.MaKh</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="account-number">@item.SoTaiKhoan</span>
+                                </td>
+                                <td>
+                                    <span class="account-type">@item.LoaiTaiKhoan</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="balance-display @(item.SoDu >= 0 ? "balance-positive" : "balance-negative")">
+                                        @item.SoDu.ToString("N0") VNĐ
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai == "Hoạt động")
+                                    {
+                                        <span class="status-badge status-active">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
+                                        </span>
+                                    }
+                                    else if (item.TrangThai == "Tạm khóa")
+                                    {
+                                        <span class="status-badge status-suspended">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Tạm khóa
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-inactive">
+                                            <i class="bi bi-x-circle-fill me-1"></i>@item.TrangThai
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h5>Chưa có tài khoản khách hàng nào</h5>
+                    <p>Hệ thống chưa có dữ liệu tài khoản khách hàng để hiển thị</p>
+                </div>
+            }
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <!-- Thêm các file CSS và JS của DataTables từ CDN -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" />
+
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
-    <!-- Script để khởi tạo DataTables -->
     <script>
+        let table;
+
         $(document).ready(function () {
-            $('#customerAccountsTable').DataTable({
+            // Khởi tạo DataTable
+            table = $('#customerAccountsTable').DataTable({
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
                 },
-                "pageLength": 10,
-                "order": [[ 0, "asc" ]] // Sắp xếp theo tên khách hàng
+                "pageLength": 15,
+                "order": [[0, "asc"]], // Sắp xếp theo cột đầu tiên (Chủ tài khoản) tăng dần
+                // THAY ĐỔI: Loại bỏ các control DOM mặc định của DataTables để dùng form lọc tùy chỉnh
+                "dom": 'rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>', // Chỉ giữ Table, Info, Paging
+                "columnDefs": [
+                    { "orderable": false, "targets": [4] } // Trạng thái không sắp xếp
+                ],
+                "drawCallback": function() {
+                    // Animate rows after draw (giữ nguyên animation hiện có)
+                    $('tbody tr').each(function(index) {
+                        $(this).css({
+                            'opacity': '0',
+                            'transform': 'translateY(20px)' // Sử dụng translateY(20px) cho fadeInUp
+                        }).delay(index * 50).animate({
+                            'opacity': '1'
+                        }, 300).css('transform', 'translateY(0)');
+                    });
+                },
+                "searching": false,   // TẮT: DataTables search box
+                "lengthChange": false, // TẮT: dropdown thay đổi số lượng bản ghi hiển thị
+                "info": true,        // BẬT: thông tin số bản ghi (ví dụ: Showing 1 to X of Y entries)
+                "paging": true       // BẬT: phân trang
             });
+
+            // GẮN SỰ KIỆN LỌC VÀO FORM, KHÔNG PHẢI VÀO DATATABLES
+            // Khi có bất kỳ thay đổi nào trên các trường lọc, tự động submit form
+            // Các lựa chọn trong dropdown hiện được set selected bằng ViewBag trong Razor,
+            // nên không cần logic JavaScript để "chọn" lại chúng.
+            $('#searchString, #statusFilter, #typeFilter, #minBalance').on('change keyup', function(event) {
+                // Chỉ submit khi có sự thay đổi đáng kể (ví dụ: sau khi người dùng gõ xong)
+                if (this.id === 'minBalance' && event.type === 'keyup') {
+                    // Để tránh submit quá nhiều khi gõ số dư, có thể debounce
+                    clearTimeout($(this).data('timeout'));
+                    $(this).data('timeout', setTimeout(function(){
+                         document.querySelector('.filter-section form').submit();
+                    }, 500)); // Gửi sau 500ms dừng gõ
+                } else if (event.type === 'change' || (event.type === 'keyup' && this.id === 'searchString' && this.value.length > 2) || (event.type === 'keyup' && this.id === 'searchString' && this.value.length === 0)) {
+                    // Submit khi dropdown thay đổi, hoặc khi gõ xong searchString (ít nhất 3 ký tự) hoặc xóa hết searchString
+                    document.querySelector('.filter-section form').submit();
+                }
+            });
+
+
+            // Animate stats cards on load (Giữ nguyên)
+            $('.stats-item').each(function(index) {
+                $(this).css({
+                    'opacity': '0',
+                    'transform': 'translateY(30px)'
+                }).delay(index * 100).animate({
+                    'opacity': '1'
+                }, 500).css('transform', 'translateY(0)');
+            });
+        });
+
+        // Export to Excel function (Giữ nguyên)
+        function exportToExcel() {
+            // DataTables Buttons vẫn hoạt động tốt với dữ liệu đã lọc trên server
+            // Chỉ cần đảm bảo Controller trả về dữ liệu phù hợp với bộ lọc hiện tại
+            table.button('.buttons-excel').trigger();
+        }
+
+        // Refresh data function (THAY ĐỔI: Submit lại form để tải lại dữ liệu từ server)
+        function refreshData() {
+            // Xóa tất cả các trường lọc trước khi submit để lấy lại toàn bộ dữ liệu gốc
+            $('#searchString').val('');
+            $('#statusFilter').val('');
+            $('#typeFilter').val('');
+            $('#minBalance').val('');
+            
+            // THAY ĐỔI: Sử dụng một form submit button ẩn để submit form
+            // Tránh gọi .submit() trực tiếp trên form nếu có các logic phức tạp
+            document.querySelector('.filter-section form').submit(); // Gửi lại form trống
+
+            // Show success message (giữ nguyên, nhưng lưu ý TempData sẽ là cách tốt hơn)
+            const alertHtml = `
+                <div class="alert alert-info alert-dismissible fade show notification-modern" role="alert">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    Dữ liệu đã được làm mới thành công!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('.stats-card').before(alertHtml);
+            setTimeout(function() {
+                $('.alert').fadeOut();
+            }, 3000);
+        }
+
+        // Add hover effect to table rows
+        $(document).on('mouseenter', 'tbody tr', function() {
+            $(this).find('.customer-avatar').css('transform', 'scale(1.1)');
+        }).on('mouseleave', 'tbody tr', function() {
+            $(this).find('.customer-avatar').css('transform', 'scale(1)');
         });
     </script>
 }

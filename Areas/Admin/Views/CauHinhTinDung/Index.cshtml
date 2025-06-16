@@ -1,0 +1,484 @@
+﻿@model IEnumerable<VAYTIEN.Models.KhachHang>
+
+@{
+    ViewData["Title"] = "Quản lý Cấu hình Tín dụng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        --hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        --border-radius: 16px;
+    }
+
+    .page-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .main-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+        .main-card:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-2px);
+        }
+
+    .card-header-enhanced {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 2rem;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .card-header-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.1;
+        }
+
+        .card-header-enhanced * {
+            position: relative;
+            z-index: 1;
+        }
+
+    .title-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        margin-right: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .enhanced-table {
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .enhanced-table thead th {
+            background: linear-gradient(135deg, #f8f9fc 0%, #e9ecef 100%);
+            color: #495057;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 1.5rem 1rem;
+            border: none;
+            position: relative;
+        }
+
+            .enhanced-table thead th::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: var(--primary-gradient);
+            }
+
+        .enhanced-table tbody tr {
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+            .enhanced-table tbody tr:hover {
+                background: linear-gradient(135deg, #f8f9ff 0%, #e6f3ff 100%);
+                transform: scale(1.01);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        .enhanced-table tbody td {
+            padding: 1.5rem 1rem;
+            border: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .customer-avatar {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .customer-details h6 {
+        margin: 0;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .customer-details small {
+        color: #7f8c8d;
+        font-size: 0.8rem;
+    }
+
+    .credit-score-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        min-width: 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .credit-score-excellent {
+        background: var(--success-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+    }
+
+    .credit-score-good {
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .credit-score-fair {
+        background: var(--warning-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+    }
+
+    .credit-limit {
+        font-weight: 700;
+        color: #27ae60;
+        font-size: 1.1rem;
+    }
+
+    .action-btn {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        border: none;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            color: white;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+    .alert-enhanced {
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .alert-success-enhanced {
+        background: linear-gradient(135deg, rgba(17, 153, 142, 0.1) 0%, rgba(56, 239, 125, 0.1) 100%);
+        border-left: 4px solid #11998e;
+        color: #0d7377;
+    }
+
+    .alert-danger-enhanced {
+        background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(238, 90, 36, 0.1) 100%);
+        border-left: 4px solid #ff6b6b;
+        color: #c0392b;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+    .stat-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 25px !important;
+        margin: 0 2px !important;
+        border: none !important;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+        color: #495057 !important;
+    }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3) !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+        }
+
+    .search-container {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+        .search-container input {
+            border-radius: 25px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+            .search-container input:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            }
+
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .animated-row {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .email-text {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .table-container {
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        overflow: hidden;
+    }
+</style>
+
+<div class="page-container">
+    <div class="container-fluid">
+        <!-- Vùng hiển thị thông báo -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success-enhanced alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger-enhanced alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="main-card">
+            <div class="card-header-enhanced">
+                <div class="d-flex align-items-center">
+                    <div class="title-icon">
+                        <i class="bi bi-sliders"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1 fw-bold">@ViewData["Title"]</h4>
+                        <p class="mb-0 opacity-75">Xem và đánh giá lại điểm tín dụng của tất cả khách hàng trong hệ thống</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table id="creditScoreTable" class="enhanced-table table align-middle mb-0 w-100">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Khách hàng</th>
+                                    <th>Email</th>
+                                    <th class="text-center">Điểm Tín Dụng</th>
+                                    <th class="text-end">Hạn Mức Vay (VNĐ)</th>
+                                    <th class="pe-4 text-center">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr class="animated-row">
+                                        <td class="ps-4">
+                                            <div class="customer-info">
+                                                <div class="customer-avatar">
+                                                    @(item.HoTen?.Substring(0, 1).ToUpper() ?? "?")
+                                                </div>
+                                                <div class="customer-details">
+                                                    <h6 class="mb-1">@item.HoTen</h6>
+                                                    <small>ID: @item.MaKh</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="email-text">@item.Email</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="credit-score-badge
+                                                @((item.DiemTinDung ?? 0) >= 740 ? "credit-score-excellent" :
+                                                  (item.DiemTinDung ?? 0) >= 670 ? "credit-score-good" : "credit-score-fair")">
+                                                @(item.DiemTinDung?.ToString() ?? "N/A")
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="credit-limit">@(item.HanMucVay?.ToString("N0") ?? "0")</span>
+                                        </td>
+                                        <td class="text-center pe-4">
+                                            <form asp-action="ChamDiemLai" method="post" asp-route-maKh="@item.MaKh"
+                                                  onsubmit="return confirm('Chấm điểm lại có thể thay đổi hạn mức của khách hàng. Bạn có chắc chắn muốn tiếp tục?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="action-btn">
+                                                    <i class="bi bi-arrow-clockwise me-1"></i>
+                                                    Chấm điểm lại
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Khởi tạo DataTable với cấu hình nâng cao
+            $('#creditScoreTable').DataTable({
+                "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
+                "pageLength": 10,
+                "order": [[ 2, "desc" ]], // Sắp xếp theo Điểm Tín Dụng giảm dần
+                "responsive": true,
+                "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                       '<"row"<"col-sm-12"tr>>' +
+                       '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                "drawCallback": function(settings) {
+                    // Thêm animation cho các hàng khi vẽ lại bảng
+                    $('#creditScoreTable tbody tr').each(function(index) {
+                        $(this).css('animation-delay', (index * 0.1) + 's');
+                    });
+                }
+            });
+
+            // Thêm hiệu ứng hover cho các nút
+            $('.action-btn').hover(
+                function() {
+                    $(this).addClass('shadow-lg');
+                },
+                function() {
+                    $(this).removeClass('shadow-lg');
+                }
+            );
+
+            // Thêm hiệu ứng cho credit score badges
+            $('.credit-score-badge').hover(
+                function() {
+                    $(this).css('transform', 'scale(1.05)');
+                },
+                function() {
+                    $(this).css('transform', 'scale(1)');
+                }
+            );
+        });
+    </script>
+}

@@ -5,42 +5,163 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card-hover {
+        transition: all 0.3s ease;
+    }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+    }
+
+    .contract-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+        .contract-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .payment-table {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .btn-modern {
+        border-radius: 25px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+        }
+
+    .empty-state {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 20px;
+        padding: 60px 20px;
+    }
+
+    .alert-modern {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .header-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px 15px 0 0;
+    }
+
+    .money-highlight {
+        font-size: 1.1em;
+        font-weight: 700;
+    }
+
+    .table-modern {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+        .table-modern thead th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: none;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table-modern tbody tr {
+            transition: all 0.2s ease;
+        }
+
+            .table-modern tbody tr:hover {
+                background-color: #f8f9ff;
+            }
+</style>
+
 <!-- Vùng hiển thị thông báo thành công/thất bại từ TempData -->
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        @TempData["Success"]
+    <div class="alert alert-success alert-dismissible fade show alert-modern mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill me-3 fs-5"></i>
+            <div>
+                <strong>Thành công!</strong><br>
+                @TempData["Success"]
+            </div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        @TempData["Error"]
+    <div class="alert alert-danger alert-dismissible fade show alert-modern mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
+            <div>
+                <strong>Lỗi!</strong><br>
+                @TempData["Error"]
+            </div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-primary fw-bold mb-0">@ViewData["Title"]</h2>
-    <a asp-controller="KhachHang" asp-action="CreateStep1" class="btn btn-primary shadow-sm">
+<!-- Header Section -->
+<div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+        <h1 class="display-6 fw-bold text-dark mb-2">@ViewData["Title"]</h1>
+        <p class="text-muted mb-0">Theo dõi và quản lý tất cả các khoản vay của bạn</p>
+    </div>
+    <a asp-controller="KhachHang" asp-action="CreateStep1" class="btn btn-primary btn-modern shadow">
         <i class="bi bi-plus-circle-fill me-2"></i>Đăng ký khoản vay mới
     </a>
 </div>
-<!-- ============================================= -->
-<div class="row g-4 mb-4">
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-5">
     <div class="col-md-6">
-        <div class="card h-100 shadow-sm border-info">
-            <div class="card-body">
+        <div class="card card-hover border-0 h-100">
+            <div class="card-body p-4">
                 <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 bg-info bg-opacity-10 text-info rounded-circle p-3">
-                        <i class="bi bi-wallet2 fs-4"></i>
+                    <div class="stats-icon bg-primary bg-opacity-10 text-primary me-4">
+                        <i class="bi bi-wallet2 fs-2"></i>
                     </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-1">Tổng dư nợ gốc</p>
-                        <h4 class="mb-0">@Model.TongSoTienVay.ToString("N0") <small>VNĐ</small></h4>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-2 fw-500">Tổng dư nợ gốc</p>
+                        <h3 class="mb-0 money-highlight text-primary">
+                            @Model.TongSoTienVay.ToString("N0")
+                            <small class="fs-6 text-muted fw-normal">VNĐ</small>
+                        </h3>
                     </div>
                 </div>
             </div>
@@ -49,15 +170,19 @@
     @if (Model.TaiKhoans.Any())
     {
         <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-success">
-                <div class="card-body">
+            <div class="card card-hover border-0 h-100">
+                <div class="card-body p-4">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-success bg-opacity-10 text-success rounded-circle p-3">
-                            <i class="bi bi-cash-coin fs-4"></i>
+                        <div class="stats-icon bg-success bg-opacity-10 text-success me-4">
+                            <i class="bi bi-cash-coin fs-2"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-1">Số dư tài khoản (@Model.TaiKhoans.First().SoTaiKhoan)</p>
-                            <h4 class="mb-0">@Model.TaiKhoans.First().SoDu.ToString("N0") <small>VNĐ</small></h4>
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-2 fw-500">Số dư tài khoản</p>
+                            <p class="small text-muted mb-1">@Model.TaiKhoans.First().SoTaiKhoan</p>
+                            <h3 class="mb-0 money-highlight text-success">
+                                @Model.TaiKhoans.First().SoDu.ToString("N0")
+                                <small class="fs-6 text-muted fw-normal">VNĐ</small>
+                            </h3>
                         </div>
                     </div>
                 </div>
@@ -66,125 +191,206 @@
     }
 </div>
 
-
-<!-- Hiển thị Tổng dư nợ gốc còn lại -->
-<div class="alert alert-info">
-    <strong>@ViewBag.LabelTongTien:</strong> @Model.TongSoTienVay.ToString("N0") VNĐ
+<!-- Tổng quan dư nợ -->
+<div class="alert alert-info alert-modern mb-5">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+        <div>
+            <h5 class="mb-1">@ViewBag.LabelTongTien</h5>
+            <p class="mb-0 money-highlight">@Model.TongSoTienVay.ToString("N0") VNĐ</p>
+        </div>
+    </div>
 </div>
 
-
+<!-- Contracts Section -->
 @if (Model == null || Model.HopDongs == null || !Model.HopDongs.Any())
 {
-    <div class="text-center p-5 border rounded bg-light">
-        <h4>Bạn chưa có hợp đồng vay nào.</h4>
-        <p>Hãy bắt đầu bằng cách đăng ký một khoản vay mới ngay hôm nay!</p>
+    <div class="empty-state text-center">
+        <i class="bi bi-file-earmark-text display-1 text-muted mb-4"></i>
+        <h3 class="text-dark mb-3">Bạn chưa có hợp đồng vay nào</h3>
+        <p class="text-muted fs-5 mb-4">Hãy bắt đầu bằng cách đăng ký một khoản vay mới ngay hôm nay!</p>
+        <a asp-controller="KhachHang" asp-action="CreateStep1" class="btn btn-primary btn-modern btn-lg">
+            <i class="bi bi-plus-circle-fill me-2"></i>Đăng ký ngay
+        </a>
     </div>
 }
 else
 {
-    foreach (var hd in Model.HopDongs.OrderByDescending(h => h.MaHopDong))
-    {
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-secondary text-white py-3">
-                <h5 class="mb-0 d-flex justify-content-between align-items-center">
-                    <span>
-                        <i class="bi bi-file-earmark-text-fill me-2"></i>
-                        <strong>Hợp đồng #@hd.MaHopDong</strong>
-                    </span>
-                    <!-- Hiển thị trạng thái của Hợp đồng -->
-                    <span class="badge fs-6 @(hd.TinhTrang == "Đã duyệt" ? "bg-success" : (hd.TinhTrang == "Chờ phê duyệt" ? "bg-warning text-dark" : "bg-danger"))">
-                        @hd.TinhTrang
-                    </span>
-                </h5>
-            </div>
-            <div class="card-body">
-                <!-- ======================================================= -->
-                <!-- SỬA LỖI: Thêm lại thông tin Số tiền vay và Còn lại -->
-                <!-- ======================================================= -->
-                <p>
-                    <strong>Số tiền vay:</strong> <span class="text-danger fw-bold">@hd.SoTienVay?.ToString("N0") VNĐ</span> |
-                    <strong>Còn lại:</strong> <span class="text-success fw-bold">@hd.SoTienConLai?.ToString("N0") VNĐ</span> |
-                    <strong>Thời gian:</strong> @hd.NgayVay?.ToString("dd/MM/yyyy") - @hd.NgayHetHan?.ToString("dd/MM/yyyy")
-                </p>
-
-                @if (hd.LichTra != null && hd.LichTra.Any())
-                {
-                    // Tìm kỳ hạn thanh toán tiếp theo (kỳ đầu tiên có trạng thái "Chưa trả")
-                    var kyCanThanhToan = hd.LichTra.OrderBy(l => l.KyHanThu).FirstOrDefault(x => x.TrangThai != "Đã trả");
-
-                    if (kyCanThanhToan != null)
-                    {
-                        <div class="alert alert-info d-flex justify-content-between align-items-center">
-                            <span>
-                                <i class="bi bi-bell-fill me-2"></i>
-                                <strong>Kỳ hạn thanh toán tiếp theo:</strong> @kyCanThanhToan.SoTienPhaiTra?.ToString("N0") VNĐ
-                            </span>
-                            <a asp-controller="ThanhToan" asp-action="ChiTiet" asp-route-maHopDong="@hd.MaHopDong" asp-route-kyHanThu="@kyCanThanhToan.KyHanThu" class="btn btn-sm btn-success">
-                                Thanh toán ngay
-                            </a>
+    <div class="row">
+        @foreach (var hd in Model.HopDongs.OrderByDescending(h => h.MaHopDong))
+        {
+            <div class="col-12 mb-4">
+                <div class="card contract-card">
+                    <!-- Contract Header -->
+                    <div class="header-gradient text-white p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="mb-2 fw-bold">
+                                    <i class="bi bi-file-earmark-text-fill me-2"></i>
+                                    Hợp đồng #@hd.MaHopDong
+                                </h4>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <span class="badge bg-white bg-opacity-20 px-3 py-2">
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        @hd.NgayVay?.ToString("dd/MM/yyyy") - @hd.NgayHetHan?.ToString("dd/MM/yyyy")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <span class="status-badge @(hd.TinhTrang == "Đã duyệt" ? "bg-success text-white" : (hd.TinhTrang == "Chờ phê duyệt" ? "bg-warning text-dark" : "bg-danger text-white"))">
+                                    <i class="bi @(hd.TinhTrang == "Đã duyệt" ? "bi-check-circle" : (hd.TinhTrang == "Chờ phê duyệt" ? "bi-clock" : "bi-x-circle")) me-1"></i>
+                                    @hd.TinhTrang
+                                </span>
+                            </div>
                         </div>
-                    }
+                    </div>
 
-                    <table class="table table-bordered table-striped table-hover small">
-                        <thead class="table-light text-center">
-                            <tr>
-                                <th>Kỳ hạn</th>
-                                <th>Ngày trả</th>
-                                <th>Số tiền</th>
-                                <th>Trạng thái</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in hd.LichTra.OrderBy(l => l.KyHanThu))
+                    <div class="card-body p-4">
+                        <!-- Contract Summary -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-danger bg-opacity-10 rounded-3">
+                                    <small class="text-muted d-block mb-1">Số tiền vay</small>
+                                    <h5 class="mb-0 text-danger money-highlight">@hd.SoTienVay?.ToString("N0") VNĐ</h5>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-success bg-opacity-10 rounded-3">
+                                    <small class="text-muted d-block mb-1">Số tiền còn lại</small>
+                                    <h5 class="mb-0 text-success money-highlight">@hd.SoTienConLai?.ToString("N0") VNĐ</h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (hd.LichTra != null && hd.LichTra.Any())
+                        {
+                            // Tìm kỳ hạn thanh toán tiếp theo
+                            var kyCanThanhToan = hd.LichTra.OrderBy(l => l.KyHanThu).FirstOrDefault(x => x.TrangThai != "Đã trả");
+
+                            if (kyCanThanhToan != null)
                             {
-                                <tr>
-                                    <td class="text-center fw-bold">@item.KyHanThu</td>
-                                    <td class="text-center">@item.NgayTra?.ToString("dd/MM/yyyy")</td>
-                                    <td class="text-end fw-bold">@item.SoTienPhaiTra?.ToString("N0")</td>
-                                    <td class="text-center">
-                                        @if (item.TrangThai == "Đã trả")
-                                        {
-                                            <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Đã thanh toán</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i> Chưa thanh toán</span>
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        @if (item.TrangThai == "Đã trả")
-                                        {
-                                            <span class="text-success fw-bold">
-                                                <i class="bi bi-check2-all"></i> Hoàn tất
-                                            </span>
-                                        }
-                                        // SỬA LỖI: Chỉ cho phép thanh toán đúng kỳ hạn tiếp theo
-                                        else if (kyCanThanhToan != null && item.KyHanThu == kyCanThanhToan.KyHanThu)
-                                        {
-                                            <a asp-controller="ThanhToan" asp-action="ChiTiet"
-                                               asp-route-maHopDong="@hd.MaHopDong"
-                                               asp-route-kyHanThu="@item.KyHanThu"
-                                               class="btn btn-sm btn-danger">
-                                                Thanh toán
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            // Vô hiệu hóa nút đối với các kỳ trong tương lai
-                                            <button class="btn btn-sm btn-secondary" disabled>Thanh toán</button>
-                                        }
-                                    </td>
-                                </tr>
+                                <div class="alert alert-warning alert-modern mb-4">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-bell-fill fs-4 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">Kỳ hạn thanh toán tiếp theo</h6>
+                                                <span class="money-highlight text-danger">@kyCanThanhToan.SoTienPhaiTra?.ToString("N0") VNĐ</span>
+                                            </div>
+                                        </div>
+                                        <a asp-controller="ThanhToan" asp-action="ChiTiet"
+                                           asp-route-maHopDong="@hd.MaHopDong"
+                                           asp-route-kyHanThu="@kyCanThanhToan.KyHanThu"
+                                           class="btn btn-success btn-modern">
+                                            <i class="bi bi-credit-card me-1"></i>Thanh toán ngay
+                                        </a>
+                                    </div>
+                                </div>
                             }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div class="alert alert-secondary">Lịch trả nợ cho hợp đồng này đang chờ được tạo sau khi admin phê duyệt.</div>
-                }
+
+                            <!-- Payment Schedule Table -->
+                            <div class="table-responsive">
+                                <table class="table table-modern mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Kỳ hạn</th>
+                                            <th class="text-center">Ngày trả</th>
+                                            <th class="text-end">Số tiền</th>
+                                            <th class="text-center">Trạng thái</th>
+                                            <th class="text-center">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in hd.LichTra.OrderBy(l => l.KyHanThu))
+                                        {
+                                            <tr>
+                                                <td class="text-center">
+                                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                                                        Kỳ @item.KyHanThu
+                                                    </span>
+                                                </td>
+                                                <td class="text-center fw-500">@item.NgayTra?.ToString("dd/MM/yyyy")</td>
+                                                <td class="text-end money-highlight">@item.SoTienPhaiTra?.ToString("N0") VNĐ</td>
+                                                <td class="text-center">
+                                                    @if (item.TrangThai == "Đã trả")
+                                                    {
+                                                        <span class="badge bg-success px-3 py-2">
+                                                            <i class="bi bi-check-circle-fill me-1"></i>Đã thanh toán
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning text-dark px-3 py-2">
+                                                            <i class="bi bi-hourglass-split me-1"></i>Chưa thanh toán
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (item.TrangThai == "Đã trả")
+                                                    {
+                                                        <span class="text-success fw-bold">
+                                                            <i class="bi bi-check2-all fs-5"></i>
+                                                        </span>
+                                                    }
+                                                    else if (kyCanThanhToan != null && item.KyHanThu == kyCanThanhToan.KyHanThu)
+                                                    {
+                                                        <a asp-controller="ThanhToan" asp-action="ChiTiet"
+                                                           asp-route-maHopDong="@hd.MaHopDong"
+                                                           asp-route-kyHanThu="@item.KyHanThu"
+                                                           class="btn btn-danger btn-sm btn-modern">
+                                                            <i class="bi bi-credit-card me-1"></i>Thanh toán
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="btn btn-secondary btn-sm" disabled>
+                                                            <i class="bi bi-lock me-1"></i>Chờ
+                                                        </button>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary alert-modern">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-hourglass-split fs-4 me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1">Đang chờ tạo lịch trả nợ</h6>
+                                        <p class="mb-0 small">Lịch trả nợ sẽ được tạo sau khi admin phê duyệt hợp đồng này.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 }
+
+<script>
+    // Add smooth animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate cards on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.contract-card').forEach((card) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    });
+</script>

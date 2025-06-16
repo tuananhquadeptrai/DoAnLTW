@@ -3,92 +3,532 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<div class="card border-0 shadow-lg">
-    <div class="card-header bg-light border-bottom-0 py-3">
-        <h4 class="mb-0 text-primary fw-bold">
-            <i class="bi bi-graph-up-arrow me-2"></i>
-            @ViewData["Title"]
-        </h4>
-        <p class="mb-0 text-muted">Biểu đồ đường thể hiện tổng doanh thu từ lãi vay qua các tháng.</p>
-    </div>
-    <div class="card-body p-4">
-        <div style="height: 400px;">
-            <canvas id="revenueChart"></canvas>
+<style>
+    .chart-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 2.5rem;
+        margin-bottom: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .chart-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .chart-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+    .chart-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+    }
+
+    .chart-subtitle {
+        opacity: 0.95;
+        font-size: 1.1rem;
+        position: relative;
+        z-index: 2;
+        line-height: 1.5;
+    }
+
+    .icon-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        background: rgba(255,255,255,0.25);
+        border-radius: 15px;
+        margin-right: 1rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .chart-container {
+        background: white;
+        padding: 3rem 2rem 2rem 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        border-radius: 0 0 20px 20px;
+        position: relative;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        height: 450px;
+        background: linear-gradient(145deg, #f8f9ff 0%, #ffffff 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .chart-footer {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 0 0 20px 20px;
+        padding: 1.5rem 2rem;
+        text-align: center;
+        border-top: 3px solid #667eea;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border-top: 4px solid;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.primary {
+            border-top-color: #667eea;
+        }
+
+        .stat-card.success {
+            border-top-color: #27ae60;
+        }
+
+        .stat-card.warning {
+            border-top-color: #f39c12;
+        }
+
+        .stat-card.info {
+            border-top-color: #3498db;
+        }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+        .stat-icon.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .stat-icon.success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .stat-icon.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .stat-icon.info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .chart-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .chart-btn {
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #667eea;
+        background: transparent;
+        color: #667eea;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .chart-btn:hover,
+        .chart-btn.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @@keyframes spin {
+        0%
+
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .chart-info-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Statistics Cards -->
+    <div class="stats-container animate-in">
+        <div class="stat-card primary">
+            <div class="stat-icon primary">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="stat-value" id="totalRevenue">0 VNĐ</div>
+            <div class="stat-label">Tổng Doanh Thu</div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-icon success">
+                <i class="bi bi-calendar-month"></i>
+            </div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Tháng Thống Kê</div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon warning">
+                <i class="bi bi-trending-up"></i>
+            </div>
+            <div class="stat-value" id="avgRevenue">0 VNĐ</div>
+            <div class="stat-label">TB Tháng</div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-icon info">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="stat-value" id="highestMonth">--</div>
+            <div class="stat-label">Tháng Cao Nhất</div>
         </div>
     </div>
-    <div class="card-footer bg-light text-muted small">
-        Dữ liệu được thống kê trong 12 tháng gần nhất.
+
+    <!-- Main Chart Card -->
+    <div class="animate-in" style="animation-delay: 0.3s;">
+        <!-- Header -->
+        <div class="chart-header">
+            <div class="chart-title">
+                <div class="icon-wrapper">
+                    <i class="bi bi-graph-up-arrow fs-3"></i>
+                </div>
+                @ViewData["Title"]
+            </div>
+            <div class="chart-subtitle">
+                Biểu đồ đường thể hiện xu hướng tăng trưởng doanh thu từ lãi vay qua 12 tháng gần nhất
+            </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-container">
+            <!-- Chart Controls -->
+            <div class="chart-controls">
+                <button class="chart-btn active" onclick="toggleChartType('line')">
+                    <i class="bi bi-graph-up me-2"></i>Đường
+                </button>
+                <button class="chart-btn" onclick="toggleChartType('bar')">
+                    <i class="bi bi-bar-chart me-2"></i>Cột
+                </button>
+                <button class="chart-btn" onclick="toggleChartType('area')">
+                    <i class="bi bi-graph-up-arrow me-2"></i>Vùng
+                </button>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>Đang tải dữ liệu...</p>
+            </div>
+
+            <!-- Chart Wrapper -->
+            <div class="chart-wrapper">
+                <div class="chart-info-badge">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Dữ liệu realtime
+                </div>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="chart-footer">
+            <div class="d-flex justify-content-center align-items-center">
+                <i class="bi bi-calendar-range me-2 text-primary"></i>
+                <strong>Dữ liệu được thống kê trong 12 tháng gần nhất</strong>
+                <span class="ms-3 badge bg-primary">Cập nhật: <span id="lastUpdate"></span></span>
+            </div>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <!-- Thêm thư viện Chart.js -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Hiển thị loading
+            showLoading();
+
             // Dữ liệu từ Controller
             const labels = @Html.Raw(Json.Serialize(ViewBag.ChartLabels));
             const dataValues = @Html.Raw(Json.Serialize(ViewBag.ChartData));
 
-            const data = {
-                labels: labels,
-                datasets: [{
-                    label: 'Doanh thu Lãi vay (VNĐ)',
-                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    data: dataValues,
-                    fill: true,
-                    tension: 0.4, // Làm cho đường cong mượt hơn
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: 'rgba(13, 110, 253, 1)',
-                    pointHoverRadius: 7,
-                    pointHoverBackgroundColor: 'rgba(13, 110, 253, 1)',
-                }]
-            };
+            // Tính toán thống kê
+            calculateStats(dataValues, labels);
 
-            const config = {
+            // Cấu hình biểu đồ
+            const chartConfig = {
                 type: 'line',
-                data: data,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu Lãi vay (VNĐ)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        data: dataValues,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: 'rgba(102, 126, 234, 1)',
+                        pointBorderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointHoverBackgroundColor: 'rgba(102, 126, 234, 1)',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 3,
+                    }]
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value, index, values) {
-                                    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
-                                }
-                            }
-                        }
-                    },
                     plugins: {
                         legend: {
                             display: false
                         },
                         tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 2,
+                            cornerRadius: 10,
+                            displayColors: false,
                             callbacks: {
+                                title: function(context) {
+                                    return 'Tháng ' + context[0].label;
+                                },
                                 label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
-                                    }
-                                    return label;
+                                    return 'Doanh thu: ' + new Intl.NumberFormat('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND'
+                                    }).format(context.parsed.y);
                                 }
                             }
                         }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: true,
+                                color: 'rgba(0,0,0,0.05)',
+                            },
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    weight: 500
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: true,
+                                color: 'rgba(0,0,0,0.05)',
+                            },
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    weight: 500
+                                },
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND',
+                                        notation: 'compact'
+                                    }).format(value);
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
                     }
                 }
             };
 
-            // Vẽ biểu đồ
-            const myChart = new Chart(
+            // Khởi tạo biểu đồ
+            window.revenueChart = new Chart(
                 document.getElementById('revenueChart'),
-                config
+                chartConfig
             );
+
+            // Ẩn loading sau khi vẽ xong
+            setTimeout(() => {
+                hideLoading();
+                updateLastUpdate();
+            }, 1000);
         });
+
+        // Functions
+        function calculateStats(data, labels) {
+            const total = data.reduce((sum, value) => sum + value, 0);
+            const average = total / data.length;
+            const maxValue = Math.max(...data);
+            const maxIndex = data.indexOf(maxValue);
+            const highestMonth = labels[maxIndex];
+
+            document.getElementById('totalRevenue').textContent =
+                new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
+
+            document.getElementById('avgRevenue').textContent =
+                new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(average);
+
+            document.getElementById('highestMonth').textContent = highestMonth;
+        }
+
+        function toggleChartType(type) {
+            // Update button states
+            document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.chart-btn').classList.add('active');
+
+            showLoading();
+
+            setTimeout(() => {
+                // Update chart type
+                if (type === 'area') {
+                    window.revenueChart.config.data.datasets[0].fill = 'origin';
+                    window.revenueChart.config.data.datasets[0].backgroundColor = 'rgba(102, 126, 234, 0.3)';
+                } else if (type === 'bar') {
+                    window.revenueChart.config.type = 'bar';
+                    window.revenueChart.config.data.datasets[0].fill = false;
+                    window.revenueChart.config.data.datasets[0].backgroundColor = 'rgba(102, 126, 234, 0.8)';
+                } else {
+                    window.revenueChart.config.type = 'line';
+                    window.revenueChart.config.data.datasets[0].fill = true;
+                    window.revenueChart.config.data.datasets[0].backgroundColor = 'rgba(102, 126, 234, 0.1)';
+                }
+
+                window.revenueChart.update('active');
+                hideLoading();
+            }, 500);
+        }
+
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent =
+                now.toLocaleString('vi-VN');
+        }
     </script>
 }

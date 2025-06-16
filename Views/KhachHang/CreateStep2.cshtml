@@ -6,93 +6,590 @@
     var loaiTienList = ViewBag.LoaiTienTeList as List<VAYTIEN.Models.LoaiTienTe>;
 }
 
-<h2 class="text-center mb-4">@ViewData["Title"]</h2>
+<style>
+    .loan-form-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <form asp-action="CreateStep2" method="post">
-            @Html.AntiForgeryToken()
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        padding: 40px;
+        margin: 20px 0;
+        position: relative;
+        overflow: hidden;
+    }
 
-            <!-- Thêm một input ẩn để lưu dữ liệu từ Bước 1 -->
-            <input type="hidden" name="khachHangJson" value="@ViewBag.KhachHangJson" />
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+        }
 
-            <div asp-validation-summary="All" class="text-danger"></div>
+    .form-title {
+        color: #2d3748;
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+        text-align: center;
+        position: relative;
+    }
 
-            <div class="mb-3">
-                <label asp-for="HopDong.MaLoaiVay" class="form-label">Loại vay</label>
-                <select asp-for="HopDong.MaLoaiVay" class="form-select" required>
-                    <option value="">-- Chọn loại vay --</option>
-                    @foreach (var item in loaiVayList!)
-                    {
-                        <option value="@item.MaLoaiVay">@item.TenLoaiVay</option>
-                    }
-                </select>
-                <span asp-validation-for="HopDong.MaLoaiVay" class="text-danger"></span>
+        .form-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #a0aec0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin: 0 10px;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+        .step.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step.completed {
+            background: #48bb78;
+            color: white;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 20px;
+            height: 2px;
+            background: #e2e8f0;
+            margin-left: 10px;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+    .section-card {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .section-header {
+        color: #2d3748;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+        .section-header i {
+            margin-right: 12px;
+            color: #667eea;
+            font-size: 1.5rem;
+        }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+    }
+
+        .form-label i {
+            margin-right: 8px;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        .form-control:hover, .form-select:hover {
+            border-color: #cbd5e0;
+        }
+
+    .money-input {
+        position: relative;
+    }
+
+        .money-input::before {
+            content: '₫';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+            z-index: 1;
+        }
+
+        .money-input input {
+            padding-right: 35px;
+        }
+
+    .btn-success {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 18px 40px;
+        font-weight: 600;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-success:active {
+            transform: translateY(0);
+        }
+
+    .quick-amounts {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .quick-amount {
+        background: #e2e8f0;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        color: #4a5568;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .quick-amount:hover {
+            background: #667eea;
+            color: white;
+        }
+
+    .required {
+        color: #e53e3e;
+    }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .validation-summary-errors {
+        background: #fed7d7;
+        border: 1px solid #feb2b2;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .validation-summary-errors li {
+            color: #c53030;
+            margin-bottom: 5px;
+        }
+
+    .loan-calculator {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+        .loan-calculator h6 {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+    .calculator-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+        .calculator-row.total {
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+    @@media (max-width: 768px) {
+        .form-card
+
+    {
+        padding: 25px;
+        margin: 10px;
+        border-radius: 15px;
+    }
+
+    .form-title {
+        font-size: 1.8rem;
+    }
+
+    .quick-amounts {
+        justify-content: center;
+    }
+
+    .step-indicator {
+        margin-bottom: 20px;
+    }
+
+    .step {
+        width: 35px;
+        height: 35px;
+        margin: 0 5px;
+    }
+
+    }
+</style>
+
+<div class="loan-form-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="form-card">
+                    <!-- Step Indicator -->
+                    <div class="step-indicator">
+                        <div class="step completed">1</div>
+                        <div class="step active">2</div>
+                        <div class="step">3</div>
+                    </div>
+
+                    <h2 class="form-title">@ViewData["Title"]</h2>
+
+                    <form asp-action="CreateStep2" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Hidden input -->
+                        <input type="hidden" name="khachHangJson" value="@ViewBag.KhachHangJson" />
+
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="All" class="validation-summary-errors" style="display: none;"></div>
+
+                        <!-- Loan Information Section -->
+                        <div class="section-card">
+                            <div class="section-header">
+                                <i class="fas fa-handshake"></i>
+                                Thông tin khoản vay
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="HopDong.MaLoaiVay" class="form-label">
+                                            <i class="fas fa-tags"></i>
+                                            Loại vay <span class="required">*</span>
+                                        </label>
+                                        <select asp-for="HopDong.MaLoaiVay" class="form-select" required>
+                                            <option value="">-- Chọn loại vay --</option>
+                                            @foreach (var item in loaiVayList!)
+                                            {
+                                                <option value="@item.MaLoaiVay">@item.TenLoaiVay</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="HopDong.MaLoaiVay" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="HopDong.MaLoaiTienTe" class="form-label">
+                                            <i class="fas fa-coins"></i>
+                                            Loại tiền <span class="required">*</span>
+                                        </label>
+                                        <select asp-for="HopDong.MaLoaiTienTe" class="form-select" required>
+                                            <option value="">-- Chọn loại tiền --</option>
+                                            @foreach (var item in loaiTienList!)
+                                            {
+                                                <option value="@item.MaLoaiTienTe">@item.TenLoaiTienTe</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="HopDong.MaLoaiTienTe" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="HopDong.SoTienVay" class="form-label">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    Số tiền vay <span class="required">*</span>
+                                </label>
+                                <div class="money-input">
+                                    <input asp-for="HopDong.SoTienVay" type="number" class="form-control"
+                                           placeholder="Nhập số tiền bạn muốn vay" min="5000000" step="1000000" required id="soTienVay" />
+                                </div>
+                                <div class="quick-amounts">
+                                    <button type="button" class="quick-amount" onclick="setAmount(10000000)">10 triệu</button>
+                                    <button type="button" class="quick-amount" onclick="setAmount(20000000)">20 triệu</button>
+                                    <button type="button" class="quick-amount" onclick="setAmount(50000000)">50 triệu</button>
+                                    <button type="button" class="quick-amount" onclick="setAmount(100000000)">100 triệu</button>
+                                    <button type="button" class="quick-amount" onclick="setAmount(200000000)">200 triệu</button>
+                                </div>
+                                <span asp-validation-for="HopDong.SoTienVay" class="text-danger"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="HopDong.NgayVay" class="form-label">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            Ngày vay <span class="required">*</span>
+                                        </label>
+                                        <input asp-for="HopDong.NgayVay" type="date" class="form-control" required />
+                                        <span asp-validation-for="HopDong.NgayVay" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="HopDong.KyHanThang" class="form-label">
+                                            <i class="fas fa-clock"></i>
+                                            Kỳ hạn vay (tháng) <span class="required">*</span>
+                                        </label>
+                                        <input asp-for="HopDong.KyHanThang" type="number" class="form-control"
+                                               placeholder="Nhập số tháng muốn vay" required id="kyHanThang" />
+                                        <span asp-validation-for="HopDong.KyHanThang" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="HopDong.HinhThucTra" class="form-label">
+                                    <i class="fas fa-credit-card"></i>
+                                    Hình thức trả <span class="required">*</span>
+                                </label>
+                                <select asp-for="HopDong.HinhThucTra" class="form-select" required>
+                                    <option value="">-- Chọn hình thức trả --</option>
+                                    <option value="Trả góp hàng tháng">Trả góp hàng tháng</option>
+                                    <option value="Trả một lần cuối kỳ">Trả một lần cuối kỳ</option>
+                                </select>
+                                <span asp-validation-for="HopDong.HinhThucTra" class="text-danger"></span>
+                            </div>
+
+                            <!-- Loan Calculator -->
+                            <div class="loan-calculator" id="loanCalculator" style="display: none;">
+                                <h6><i class="fas fa-calculator me-2"></i>Ước tính khoản vay</h6>
+                                <div class="calculator-row">
+                                    <span>Số tiền vay:</span>
+                                    <span id="calcSoTien">0 VNĐ</span>
+                                </div>
+                                <div class="calculator-row">
+                                    <span>Lãi suất/tháng (1.5%):</span>
+                                    <span id="calcLaiSuat">0 VNĐ</span>
+                                </div>
+                                <div class="calculator-row">
+                                    <span>Thời hạn:</span>
+                                    <span id="calcThoiHan">0 tháng</span>
+                                </div>
+                                <div class="calculator-row total">
+                                    <span>Tổng tiền phải trả:</span>
+                                    <span id="calcTongTien">0 VNĐ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Collateral Section -->
+                        <div class="section-card">
+                            <div class="section-header">
+                                <i class="fas fa-home"></i>
+                                Tài sản thế chấp
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="TaiSan.TenTaiSan" class="form-label">
+                                            <i class="fas fa-tag"></i>
+                                            Tên tài sản
+                                        </label>
+                                        <input asp-for="TaiSan.TenTaiSan" placeholder="VD: Nhà đất, xe ô tô, vàng..." class="form-control" />
+                                        <span asp-validation-for="TaiSan.TenTaiSan" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="TaiSan.GiaTri" class="form-label">
+                                            <i class="fas fa-dollar-sign"></i>
+                                            Giá trị (VNĐ)
+                                        </label>
+                                        <div class="money-input">
+                                            <input asp-for="TaiSan.GiaTri" placeholder="Nhập giá trị tài sản" class="form-control" type="number" />
+                                        </div>
+                                        <span asp-validation-for="TaiSan.GiaTri" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="TaiSan.MoTa" class="form-label">
+                                    <i class="fas fa-file-alt"></i>
+                                    Mô tả tài sản
+                                </label>
+                                <textarea asp-for="TaiSan.MoTa" placeholder="Mô tả chi tiết về tài sản thế chấp..." class="form-control" rows="4"></textarea>
+                                <span asp-validation-for="TaiSan.MoTa" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Gửi yêu cầu phê duyệt
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="HopDong.MaLoaiTienTe" class="form-label">Loại tiền</label>
-                <select asp-for="HopDong.MaLoaiTienTe" class="form-select" required>
-                    <option value="">-- Chọn loại tiền --</option>
-                    @foreach (var item in loaiTienList!)
-                    {
-                        <option value="@item.MaLoaiTienTe">@item.TenLoaiTienTe</option>
-                    }
-                </select>
-                <span asp-validation-for="HopDong.MaLoaiTienTe" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="HopDong.SoTienVay" class="form-label">Số tiền vay (VNĐ)</label>
-                <!-- Sửa thành ô nhập số để linh hoạt hơn -->
-                <input asp-for="HopDong.SoTienVay" type="number" class="form-control" placeholder="Nhập số tiền bạn muốn vay" min="5000000" step="1000000" required />
-                <span asp-validation-for="HopDong.SoTienVay" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="HopDong.NgayVay" class="form-label">Ngày vay</label>
-                <input asp-for="HopDong.NgayVay" type="date" class="form-control" required />
-                <span asp-validation-for="HopDong.NgayVay" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="HopDong.HinhThucTra" class="form-label">Hình thức trả</label>
-                <select asp-for="HopDong.HinhThucTra" class="form-select" required>
-                    <option value="">-- Chọn hình thức trả --</option>
-                    <option value="Trả góp hàng tháng">Trả góp hàng tháng</option>
-                    <option value="Trả một lần cuối kỳ">Trả một lần cuối kỳ</option>
-                </select>
-                <span asp-validation-for="HopDong.HinhThucTra" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="HopDong.KyHanThang" class="form-label">Kỳ hạn vay (tháng)</label>
-                <input asp-for="HopDong.KyHanThang" type="number" class="form-control" placeholder="Nhập số tháng muốn vay" required />
-                <span asp-validation-for="HopDong.KyHanThang" class="text-danger"></span>
-            </div>
-
-            <hr class="my-4" />
-
-            <h5 class="mt-4">Tài sản thế chấp</h5>
-            <!-- Sử dụng asp-for cho các trường của Tài sản -->
-            <div class="mb-3">
-                <input asp-for="TaiSan.TenTaiSan" placeholder="Tên tài sản" class="form-control" />
-                <span asp-validation-for="TaiSan.TenTaiSan" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <input asp-for="TaiSan.GiaTri" placeholder="Giá trị (VNĐ)" class="form-control" type="number" />
-                <span asp-validation-for="TaiSan.GiaTri" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <textarea asp-for="TaiSan.MoTa" placeholder="Mô tả tài sản" class="form-control" rows="3"></textarea>
-            </div>
-
-            <div class="d-grid mt-3">
-                <button type="submit" class="btn btn-success btn-lg">Gửi yêu cầu phê duyệt</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<script>
+    // Set default date to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput && !dateInput.value) {
+            dateInput.value = today;
+        }
+    });
+
+    // Quick amount buttons
+    function setAmount(amount) {
+        document.getElementById('soTienVay').value = amount;
+        calculateLoan();
+    }
+
+    // Format number with dots
+    function formatMoney(amount) {
+        return new Intl.NumberFormat('vi-VN').format(amount) + ' VNĐ';
+    }
+
+    // Loan calculator
+    function calculateLoan() {
+        const soTien = parseInt(document.getElementById('soTienVay').value) || 0;
+        const kyHan = parseInt(document.getElementById('kyHanThang').value) || 0;
+
+        if (soTien > 0 && kyHan > 0) {
+            const laiSuatThang = 0.015; // 1.5% per month
+            const tongLai = soTien * laiSuatThang * kyHan;
+            const tongTien = soTien + tongLai;
+
+            document.getElementById('calcSoTien').textContent = formatMoney(soTien);
+            document.getElementById('calcLaiSuat').textContent = formatMoney(tongLai);
+            document.getElementById('calcThoiHan').textContent = kyHan + ' tháng';
+            document.getElementById('calcTongTien').textContent = formatMoney(tongTien);
+
+            document.getElementById('loanCalculator').style.display = 'block';
+        } else {
+            document.getElementById('loanCalculator').style.display = 'none';
+        }
+    }
+
+    // Add event listeners for calculation
+    document.getElementById('soTienVay').addEventListener('input', calculateLoan);
+    document.getElementById('kyHanThang').addEventListener('input', calculateLoan);
+
+    // Form validation enhancement
+    document.querySelectorAll('.form-control, .form-select').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.hasAttribute('required') && this.value.trim() === '') {
+                this.style.borderColor = '#fed7d7';
+            } else {
+                this.style.borderColor = '#9ae6b4';
+            }
+        });
+
+        input.addEventListener('focus', function() {
+            this.style.borderColor = '#667eea';
+        });
+    });
+
+    // Show validation summary if there are errors
+    document.addEventListener('DOMContentLoaded', function() {
+        const validationSummary = document.querySelector('.validation-summary-errors');
+        if (validationSummary && validationSummary.querySelector('ul li')) {
+            validationSummary.style.display = 'block';
+        }
+    });
+</script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

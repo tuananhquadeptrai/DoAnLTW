@@ -69,4 +69,5 @@ public partial class KhachHang
     public virtual ICollection<HopDongVay> HopDongVays { get; set; } = new List<HopDongVay>();
 
     public virtual ICollection<TaiKhoanNganHang> TaiKhoanNganHangs { get; set; } = new List<TaiKhoanNganHang>();
+    public virtual ICollection<KhachHangAnh> AnhDinhKems { get; set; } = new List<KhachHangAnh>();
 }

@@ -8,69 +8,299 @@
     var totalRevenue = (decimal)ViewBag.TotalRevenue;
 }
 
-<div class="card border-0 shadow-lg">
-    <div class="card-header bg-light border-bottom-0 py-3">
-        <h4 class="mb-0 text-primary fw-bold">
-            <i class="bi bi-bar-chart-line-fill me-2"></i>
+<style>
+    .revenue-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 2rem;
+        margin-bottom: 0;
+    }
+
+    .revenue-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .revenue-subtitle {
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .filter-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 0 0 15px 15px;
+        margin-bottom: 2rem;
+    }
+
+    .custom-form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .custom-form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+    .btn-modern {
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+    .btn-success-modern {
+        background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        color: white;
+    }
+
+        .btn-success-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+        }
+
+    .revenue-summary {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(17, 153, 142, 0.3);
+    }
+
+    .revenue-amount {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+
+    .revenue-period {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .data-table-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .table-modern {
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+        .table-modern thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+        }
+
+        .table-modern tbody tr {
+            transition: all 0.3s ease;
+        }
+
+            .table-modern tbody tr:hover {
+                background-color: #f8f9fa;
+                transform: scale(1.01);
+            }
+
+        .table-modern tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+    .contract-id {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .period-badge {
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .customer-name {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .penalty-amount {
+        color: #e74c3c;
+        font-weight: 600;
+    }
+
+    .total-amount {
+        color: #27ae60;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .icon-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        margin-right: 1rem;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="revenue-header">
+        <div class="revenue-title">
+            <div class="icon-wrapper">
+                <i class="bi bi-bar-chart-line-fill fs-4"></i>
+            </div>
             @ViewData["Title"]
-        </h4>
-        <p class="mb-0 text-muted">Lọc và xem báo cáo doanh thu theo khoảng thời gian tùy chọn.</p>
+        </div>
+        <div class="revenue-subtitle">
+            Theo dõi và phân tích doanh thu theo khoảng thời gian tùy chọn
+        </div>
     </div>
-    <div class="card-body">
-        <!-- Form lọc theo ngày -->
+
+    <!-- Filter Section -->
+    <div class="filter-section">
         <form asp-action="BaoCaoDoanhThu" method="get">
-            <div class="row align-items-end g-3 mb-4">
+            <div class="row align-items-end g-4">
                 <div class="col-md-4">
-                    <label for="fromDate" class="form-label">Từ ngày</label>
-                    <input type="date" id="fromDate" name="fromDate" value="@fromDate?.ToString("yyyy-MM-dd")" class="form-control">
+                    <label for="fromDate" class="form-label fw-semibold">
+                        <i class="bi bi-calendar-date me-2"></i>Từ ngày
+                    </label>
+                    <input type="date" id="fromDate" name="fromDate"
+                           value="@fromDate?.ToString("yyyy-MM-dd")"
+                           class="form-control custom-form-control">
                 </div>
                 <div class="col-md-4">
-                    <label for="toDate" class="form-label">Đến ngày</label>
-                    <input type="date" id="toDate" name="toDate" value="@toDate?.ToString("yyyy-MM-dd")" class="form-control">
+                    <label for="toDate" class="form-label fw-semibold">
+                        <i class="bi bi-calendar-date me-2"></i>Đến ngày
+                    </label>
+                    <input type="date" id="toDate" name="toDate"
+                           value="@toDate?.ToString("yyyy-MM-dd")"
+                           class="form-control custom-form-control">
                 </div>
-                <div class="col-md-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-funnel-fill me-2"></i>Xem Báo cáo
-                    </button>
-                    <!-- Nút Xuất Excel -->
-                    <a class="btn btn-success w-100"
-                       asp-action="ExportDoanhThuToExcel"
-                       asp-route-fromDate="@fromDate?.ToString("yyyy-MM-dd")"
-                       asp-route-toDate="@toDate?.ToString("yyyy-MM-dd")">
-                        <i class="bi bi-file-earmark-excel-fill me-2"></i>Xuất Excel
-                    </a>
+                <div class="col-md-4">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-primary-modern btn-modern w-100">
+                                <i class="bi bi-funnel-fill me-2"></i>Xem Báo cáo
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <a class="btn btn-success-modern btn-modern w-100"
+                               asp-action="ExportDoanhThuToExcel"
+                               asp-route-fromDate="@fromDate?.ToString("yyyy-MM-dd")"
+                               asp-route-toDate="@toDate?.ToString("yyyy-MM-dd")">
+                                <i class="bi bi-file-earmark-excel-fill me-2"></i>Xuất Excel
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
+    </div>
 
-        <!-- Kết quả báo cáo -->
-        <div class="alert alert-success">
-            Tổng doanh thu từ <strong>@fromDate?.ToString("dd/MM/yyyy")</strong> đến <strong>@toDate?.ToString("dd/MM/yyyy")</strong> là:
-            <strong class="fs-5">@totalRevenue.ToString("N0") VNĐ</strong>
+    <!-- Revenue Summary -->
+    <div class="revenue-summary">
+        <div class="revenue-period">
+            Tổng doanh thu từ <strong>@fromDate?.ToString("dd/MM/yyyy")</strong>
+            đến <strong>@toDate?.ToString("dd/MM/yyyy")</strong>
+        </div>
+        <div class="revenue-amount">
+            @totalRevenue.ToString("N0") VNĐ
+        </div>
+        <div class="d-flex justify-content-center align-items-center">
+            <i class="bi bi-trending-up fs-2 me-2"></i>
+            <span>Doanh thu tích lũy</span>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="data-table-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0 fw-bold text-primary">
+                <i class="bi bi-table me-2"></i>Chi tiết doanh thu
+            </h5>
+            <span class="badge bg-primary fs-6">@Model.Count() giao dịch</span>
         </div>
 
         <div class="table-responsive">
-            <table id="doanhThuTable" class="table table-hover align-middle" style="width:100%">
-                <thead class="table-light">
+            <table id="doanhThuTable" class="table table-modern" style="width:100%">
+                <thead>
                     <tr>
-                        <th>Mã HĐ</th>
-                        <th>Kỳ hạn</th>
-                        <th>Ngày Thanh Toán</th>
-                        <th>Khách hàng</th>
-                        <th class="text-end">Tiền Phạt</th>
-                        <th class="text-end">Tổng Thu (VNĐ)</th>
+                        <th><i class="bi bi-file-text me-2"></i>Mã HĐ</th>
+                        <th><i class="bi bi-calendar3 me-2"></i>Kỳ hạn</th>
+                        <th><i class="bi bi-calendar-check me-2"></i>Ngày TT</th>
+                        <th><i class="bi bi-person me-2"></i>Khách hàng</th>
+                        <th class="text-end"><i class="bi bi-exclamation-triangle me-2"></i>Tiền Phạt</th>
+                        <th class="text-end"><i class="bi bi-cash-coin me-2"></i>Tổng Thu</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>#@item.MaHopDong</td>
-                            <td class="text-center">@item.KyHanThu</td>
-                            <td>@item.NgayTra?.ToString("dd/MM/yyyy")</td>
-                            <td class="fw-bold">@item.MaHopDongNavigation?.MaKhNavigation?.HoTen</td>
-                            <td class="text-end text-danger">@((item.SoTienPhat ?? 0).ToString("N0"))</td>
-                            <td class="text-end text-success fw-bold">+ @(((item.SoTienPhaiTra ?? 0) + (item.SoTienPhat ?? 0)).ToString("N0"))</td>
+                            <td>
+                                <span class="contract-id">#@item.MaHopDong</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="period-badge">@item.KyHanThu</span>
+                            </td>
+                            <td>
+                                <i class="bi bi-calendar-event me-2 text-muted"></i>
+                                @item.NgayTra?.ToString("dd/MM/yyyy")
+                            </td>
+                            <td class="customer-name">
+                                <i class="bi bi-person-circle me-2 text-primary"></i>
+                                @item.MaHopDongNavigation?.MaKhNavigation?.HoTen
+                            </td>
+                            <td class="text-end penalty-amount">
+                                @if ((item.SoTienPhat ?? 0) > 0)
+                                {
+                                    <i class="bi bi-exclamation-circle me-1"></i>
+                                }
+                                @((item.SoTienPhat ?? 0).ToString("N0")) VNĐ
+                            </td>
+                            <td class="text-end total-amount">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                @(((item.SoTienPhaiTra ?? 0) + (item.SoTienPhat ?? 0)).ToString("N0")) VNĐ
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -80,12 +310,15 @@
 </div>
 
 @section Scripts {
-    <!-- Thêm các file CSS và JS của DataTables từ CDN -->
+    <!-- DataTables CSS và JS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" />
+
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
 
-    <!-- Script để khởi tạo DataTables -->
     <script>
         $(document).ready(function () {
             $('#doanhThuTable').DataTable({
@@ -93,8 +326,45 @@
                     "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
                 },
                 "pageLength": 10,
-                "order": [[ 2, "desc" ]] // Sắp xếp theo Ngày Thanh Toán giảm dần
+                "order": [[ 2, "desc" ]], // Sắp xếp theo Ngày Thanh Toán giảm dần
+                "responsive": true,
+                "dom": 'Bfrtip',
+                "buttons": [
+                    {
+                        extend: 'pageLength',
+                        className: 'btn btn-outline-primary btn-sm'
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "targets": [4, 5],
+                        "className": "text-end"
+                    }
+                ],
+                "drawCallback": function() {
+                    // Thêm animation khi load table
+                    $('tbody tr').each(function(index) {
+                        $(this).css('animation', 'fadeInUp 0.5s ease forwards');
+                        $(this).css('animation-delay', (index * 0.1) + 's');
+                    });
+                }
             });
         });
+
+        // Thêm CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+       @@keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 }

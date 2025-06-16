@@ -5,62 +5,228 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<!-- Vùng hiển thị thông báo (Notifications) -->
+<style>
+    .gradient-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .card-modern {
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border: none;
+        overflow: hidden;
+    }
+    
+    .btn-modern {
+        border-radius: 25px;
+        padding: 8px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .table-modern thead th {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8edff 100%);
+        border: none;
+        font-weight: 700;
+        color: #4a5568;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+    
+    .table-modern tbody tr {
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .table-modern tbody tr:hover {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        transform: scale(1.01);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .table-modern td {
+        padding: 1.25rem 1rem;
+        border: none;
+        vertical-align: middle;
+    }
+    
+    .loan-badge {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-block;
+    }
+    
+    .rate-display {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #2d3748;
+        padding: 8px 16px;
+        border-radius: 15px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    
+    .term-display {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        color: #2d3748;
+        padding: 8px 16px;
+        border-radius: 15px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 3px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .action-btn:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-edit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-delete {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .import-section {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .stats-footer {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        border-radius: 0 0 20px 20px;
+        padding: 15px 25px;
+        font-weight: 600;
+        color: #2d3748;
+    }
+    
+    .notification-modern {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .file-input-modern {
+        border: 2px dashed #cbd5e0;
+        border-radius: 10px;
+        padding: 10px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .file-input-modern:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+</style>
 
-
+<!-- Vùng hiển thị thông báo -->
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-
-
-<div class="card border-0 shadow-lg">
-    <div class="card-header bg-light border-bottom-0 py-3">
-        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-            <h4 class="mb-0 text-primary fw-bold">
-                <i class="bi bi-box-seam-fill me-2"></i>
-                @ViewData["Title"]
-            </h4>
-            <div class="d-flex gap-2">
-                <!-- ============================================= -->
-                <!-- FORM IMPORT TỪ FILE EXCEL -->
-                <!-- ============================================= -->
-                <form asp-action="ImportExcel" method="post" enctype="multipart/form-data" class="d-flex gap-2">
-                    @Html.AntiForgeryToken()
-                    <input type="file" name="excelFile" class="form-control form-control-sm" required accept=".xlsx, .xls" />
-                    <button type="submit" class="btn btn-outline-success btn-sm flex-shrink-0" title="Tải lên file Excel">
-                        <i class="bi bi-file-earmark-arrow-up-fill me-1"></i> Import
-                    </button>
-                </form>
-
-                <a asp-action="Create" class="btn btn-primary shadow-sm flex-shrink-0">
-                    <i class="bi bi-plus-circle-fill me-1"></i>Thêm thủ công
-                </a>
+    <div class="alert alert-success notification-modern alert-dismissible fade show" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill me-3" style="font-size: 1.5rem;"></i>
+            <div>
+                <strong>Thành công!</strong>
+                <div>@TempData["Success"]</div>
             </div>
         </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger notification-modern alert-dismissible fade show" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+            <div>
+                <strong>Lỗi!</strong>
+                <div>@TempData["Error"]</div>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Import Section -->
+<div class="import-section">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h6 class="mb-2 fw-bold">
+                <i class="bi bi-cloud-upload-fill me-2"></i>
+                Nhập dữ liệu từ Excel
+            </h6>
+            <p class="mb-0 small text-muted">Tải lên file Excel để thêm nhiều sản phẩm vay cùng lúc</p>
+        </div>
+        <div class="col-md-4">
+            <form asp-action="ImportExcel" method="post" enctype="multipart/form-data" class="d-flex gap-2">
+                @Html.AntiForgeryToken()
+                <input type="file" name="excelFile" class="form-control file-input-modern form-control-sm" required accept=".xlsx, .xls" />
+                <button type="submit" class="btn btn-success btn-modern flex-shrink-0" title="Tải lên file Excel">
+                    <i class="bi bi-upload me-1"></i> Import
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Main Card -->
+<div class="card card-modern">
+    <div class="card-header gradient-header py-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-1 fw-bold">
+                    <i class="bi bi-bank2 me-2"></i>
+                    @ViewData["Title"]
+                </h4>
+                <p class="mb-0 opacity-75">Quản lý tất cả các sản phẩm vay của hệ thống</p>
+            </div>
+            <a asp-action="Create" class="btn btn-light btn-modern">
+                <i class="bi bi-plus-circle-fill me-2"></i>Thêm sản phẩm mới
+            </a>
+        </div>
+    </div>
+    
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="text-uppercase small">
-                        <th class="py-3 ps-4" style="width: 25%;">Tên sản phẩm vay</th>
-                        <th class="py-3 text-center">Lãi suất (%/năm)</th>
-                        <th class="py-3 text-center">Kỳ hạn (tháng)</th>
-                        <th class="py-3" style="width: 35%;">Ghi chú</th>
-                        <th class="py-3 text-center" style="width: 120px;">Hành động</th>
+            <table class="table table-modern mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4" style="width: 30%;">Sản phẩm vay</th>
+                        <th class="text-center">Lãi suất</th>
+                        <th class="text-center">Kỳ hạn</th>
+                        <th style="width: 35%;">Ghi chú</th>
+                        <th class="text-center" style="width: 130px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,31 +234,111 @@
                     {
                         <tr>
                             <td class="ps-4">
-                                <span class="fw-bold">@item.TenLoaiVay</span>
+                                <div class="loan-badge">
+                                    <i class="bi bi-cash-coin me-2"></i>
+                                    @item.TenLoaiVay
+                                </div>
                             </td>
-                            <td class="text-center">@item.LaiSuat</td>
-                            <td class="text-center">@item.KyHan</td>
-                            <td class="text-muted small">@item.GhiChu</td>
                             <td class="text-center">
-                                <a asp-action="Edit" asp-route-id="@item.MaLoaiVay" class="btn btn-sm btn-outline-primary border-0" title="Sửa">
-                                    <i class="bi bi-pencil-square fs-5"></i>
-                                </a>
-                                
-
-                                <form asp-action="Delete" method="post" asp-route-id="@item.MaLoaiVay" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Xóa">
-                                        <i class="bi bi-trash-fill fs-5"></i>
-                                    </button>
-                                </form>
+                                <span class="rate-display">
+                                    @item.LaiSuat%/năm
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="term-display">
+                                    @item.KyHan tháng
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small text-muted" style="line-height: 1.4;">
+                                    @if (string.IsNullOrEmpty(item.GhiChu))
+                                    {
+                                        <em class="text-secondary">Không có ghi chú</em>
+                                    }
+                                    else
+                                    {
+                                        @item.GhiChu
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center">
+                                    <a asp-action="Edit" asp-route-id="@item.MaLoaiVay" 
+                                       class="action-btn btn-edit" title="Chỉnh sửa sản phẩm">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    
+                                    <form asp-action="Delete" method="post" asp-route-id="@item.MaLoaiVay" 
+                                          class="d-inline" onsubmit="return confirm('⚠️ Bạn có chắc chắn muốn xóa sản phẩm \"\"?\n\nHành động này không thể hoàn tác!');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="action-btn btn-delete" title="Xóa sản phẩm">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+            
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted mb-3"></i>
+                    <h5 class="text-muted">Chưa có sản phẩm vay nào</h5>
+                    <p class="text-muted">Hãy thêm sản phẩm vay đầu tiên của bạn</p>
+                    <a asp-action="Create" class="btn btn-primary btn-modern">
+                        <i class="bi bi-plus-circle-fill me-2"></i>Thêm sản phẩm đầu tiên
+                    </a>
+                </div>
+            }
         </div>
     </div>
-    <div class="card-footer bg-light text-muted small">
-        Tổng cộng có @Model.Count() sản phẩm vay.
-    </div>
+    
+    @if (Model.Any())
+    {
+        <div class="stats-footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <i class="bi bi-bar-chart-fill me-2"></i>
+                    <strong>Tổng cộng: @Model.Count() sản phẩm vay</strong>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        <i class="bi bi-clock-fill me-1"></i>
+                        Cập nhật lần cuối: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
 </div>
+
+<script>
+    // Thêm hiệu ứng smooth cho các thao tác
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate table rows on load
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                row.style.transition = 'all 0.5s ease';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+        
+        // Enhanced file input styling
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    this.style.borderColor = '#48bb78';
+                    this.style.backgroundColor = '#f0fff4';
+                }
+            });
+        }
+    });
+</script>

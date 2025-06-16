@@ -1,59 +1,365 @@
 ﻿@* Đây là code để hiển thị thông tin chi tiết của một khách hàng.
     Model nhận vào phải là: @model VAYTIEN.Models.KhachHang
 *@
-
 @{
     ViewData["Title"] = "Thông tin cá nhân";
 }
 
+<style>
+    .profile-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .profile-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+    }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .profile-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-header .subtitle {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+    .avatar-container {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+    .avatar-img {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 6px solid white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+        .avatar-img:hover {
+            transform: scale(1.05);
+        }
+
+    .avatar-status {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        background: #28a745;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-body {
+        padding: 40px;
+    }
+
+    .info-section {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8f0fe 100%);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        transition: background-color 0.3s ease;
+    }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-item:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+            border-radius: 10px;
+            margin: 0 -10px;
+            padding: 15px 10px;
+        }
+
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        margin-right: 20px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.9rem;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #2d3748;
+        font-weight: 500;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .btn-modern {
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+    .warning-card {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 1px solid #ffc107;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin: 40px auto;
+        max-width: 600px;
+        box-shadow: 0 10px 30px rgba(255, 193, 7, 0.2);
+    }
+
+    .warning-icon {
+        font-size: 3rem;
+        color: #856404;
+        margin-bottom: 20px;
+    }
+
+    .warning-card h3 {
+        color: #856404;
+        margin-bottom: 15px;
+    }
+
+    .warning-card p {
+        color: #856404;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+
+    .warning-card .btn {
+        background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+        border: none;
+        color: #856404;
+        font-weight: 600;
+        padding: 12px 25px;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+        .warning-card .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+            color: #856404;
+        }
+
+    @@media (max-width: 768px) {
+        .profile-header h1
+
+    {
+        font-size: 2rem;
+    }
+
+    .avatar-img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-body {
+        padding: 20px;
+    }
+
+    .info-section {
+        padding: 20px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-modern {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+
+    }
+</style>
+
 @if (Model != null)
 {
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0"><i class="bi bi-person-badge-fill me-2"></i>@ViewData["Title"]</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 text-center">
-                                <!-- Hiển thị ảnh đại diện -->
+    <div class="profile-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-xl-8">
+                    <div class="profile-card">
+                        <!-- Header với avatar -->
+                        <div class="profile-header">
+                            <div class="avatar-container">
                                 <img src="@(string.IsNullOrEmpty(Model.AnhDinhKem) ? "/images/default-avatar.png" : Model.AnhDinhKem)"
-                                     class="img-fluid rounded-circle mb-3"
-                                     alt="Ảnh đại diện"
-                                     style="width: 150px; height: 150px; object-fit: cover;">
+                                     class="avatar-img"
+                                     alt="Ảnh đại diện">
+                                <div class="avatar-status"></div>
                             </div>
-                            <div class="col-md-8">
-                                <h3 class="text-primary">@Model.HoTen</h3>
-                                <p class="text-muted">@Model.Email</p>
-                                <hr />
-                                <dl class="row">
-                                    <dt class="col-sm-5">Số điện thoại:</dt>
-                                    <dd class="col-sm-7">@Model.Sdt</dd>
+                            <h1>@Model.HoTen</h1>
+                            <p class="subtitle">@Model.Email</p>
+                        </div>
 
-                                    <dt class="col-sm-5">Ngày sinh:</dt>
-                                    <dd class="col-sm-7">@Model.NgaySinh?.ToString("dd/MM/yyyy")</dd>
+                        <!-- Thông tin chi tiết -->
+                        <div class="profile-body">
+                            <div class="info-section">
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="bi bi-telephone-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <div class="info-label">Số điện thoại</div>
+                                        <div class="info-value">@Model.Sdt</div>
+                                    </div>
+                                </div>
 
-                                    <dt class="col-sm-5">CMND/CCCD:</dt>
-                                    <dd class="col-sm-7">@Model.CmndCccd</dd>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="bi bi-calendar-heart-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <div class="info-label">Ngày sinh</div>
+                                        <div class="info-value">@Model.NgaySinh?.ToString("dd/MM/yyyy")</div>
+                                    </div>
+                                </div>
 
-                                    <dt class="col-sm-5">Địa chỉ:</dt>
-                                    <dd class="col-sm-7">@Model.DiaChi</dd>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="bi bi-card-text"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <div class="info-label">CMND/CCCD</div>
+                                        <div class="info-value">@Model.CmndCccd</div>
+                                    </div>
+                                </div>
 
-                                    <dt class="col-sm-5">Nghề nghiệp:</dt>
-                                    <dd class="col-sm-7">@Model.NgheNghiep</dd>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <div class="info-label">Địa chỉ</div>
+                                        <div class="info-value">@Model.DiaChi</div>
+                                    </div>
+                                </div>
 
-                                    <dt class="col-sm-5">Hôn nhân:</dt>
-                                    <dd class="col-sm-7">@Model.TinhTrangHonNhan</dd>
-                                </dl>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="bi bi-briefcase-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <div class="info-label">Nghề nghiệp</div>
+                                        <div class="info-value">@Model.NgheNghiep</div>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="bi bi-heart-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <div class="info-label">Tình trạng hôn nhân</div>
+                                        <div class="info-value">@Model.TinhTrangHonNhan</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Nút chỉnh sửa -->
+                            <div class="action-buttons">
+                                <a asp-controller="TaiKhoanNganHang" asp-action="Edit" asp-route-id="@Model.MaKh"
+                                   class="btn-modern btn-primary-modern">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Chỉnh sửa thông tin
+                                </a>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-footer text-end">
-                        <a asp-controller="TaiKhoanNganHang" asp-action="Edit" asp-route-id="@Model.MaKh" class="btn btn-outline-primary">
-                            <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa thông tin
-                        </a>
                     </div>
                 </div>
             </div>
@@ -62,11 +368,19 @@
 }
 else
 {
-    // Hiển thị khi không tìm thấy thông tin khách hàng
-    <div class="alert alert-warning">
-        Không tìm thấy thông tin của bạn. Vui lòng
-        <a asp-controller="KhachHang" asp-action="CreateStep1">đăng ký thông tin hồ sơ</a>
-        để tiếp tục.
+    <div class="profile-container">
+        <div class="container">
+            <div class="warning-card">
+                <div class="warning-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <h3>Chưa có thông tin cá nhân</h3>
+                <p>Không tìm thấy thông tin của bạn trong hệ thống. Vui lòng đăng ký thông tin hồ sơ để tiếp tục sử dụng dịch vụ.</p>
+                <a asp-controller="KhachHang" asp-action="CreateStep1" class="btn">
+                    <i class="bi bi-person-plus-fill me-2"></i>
+                    Đăng ký thông tin hồ sơ
+                </a>
+            </div>
+        </div>
     </div>
 }
-
