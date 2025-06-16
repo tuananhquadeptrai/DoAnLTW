@@ -65,6 +65,7 @@
         padding: 10px 0;
         max-height: calc(100% - 100px);
         overflow-y: auto;
+        scroll-behavior: smooth;
     }
 
     .user-item {
@@ -113,6 +114,7 @@
         display: flex;
         flex-direction: column;
         background: #f8f9fa;
+        position: relative;
     }
 
     .chat-header {
@@ -123,6 +125,8 @@
         align-items: center;
         gap: 15px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
     }
 
         .chat-header h6 {
@@ -135,8 +139,11 @@
         flex: 1;
         padding: 20px;
         overflow-y: auto;
+        overflow-x: hidden;
         background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
         position: relative;
+        scroll-behavior: smooth;
+        max-height: calc(100vh - 200px);
     }
 
         .chat-window::before {
@@ -208,6 +215,8 @@
         background: white;
         border-top: 1px solid #e0e0e0;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        position: relative;
+        z-index: 10;
     }
 
     .chat-input-group {
@@ -259,6 +268,58 @@
             transform: translateY(0);
         }
 
+    /* Scroll to bottom button */
+    .scroll-to-bottom {
+        position: absolute;
+        bottom: 80px;
+        right: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        z-index: 20;
+        animation: bounce 2s infinite;
+    }
+
+        .scroll-to-bottom:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .scroll-to-bottom.show {
+            display: flex;
+        }
+
+    /* Unread message indicator */
+    .unread-indicator {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ff4757;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        animation: pulse 1.5s infinite;
+    }
+
+        .unread-indicator.show {
+            display: flex;
+        }
+
     .no-selection {
         display: flex;
         align-items: center;
@@ -298,26 +359,71 @@
 
     }
 
-    /* Scrollbar styling */
+    @@keyframes bounce {
+        0%, 20%, 50%, 80%, 100%
+
+    {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
+
+    }
+
+    @@keyframes pulse {
+        0%
+
+    {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+
+    }
+
+    /* Enhanced scrollbar styling */
     .users-list::-webkit-scrollbar,
     .chat-window::-webkit-scrollbar {
-        width: 6px;
+        width: 8px;
     }
 
     .users-list::-webkit-scrollbar-track,
     .chat-window::-webkit-scrollbar-track {
-        background: transparent;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
     }
 
     .users-list::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 4px;
+        transition: background 0.3s ease;
     }
 
+        .users-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
     .chat-window::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 3px;
+        background: rgba(102, 126, 234, 0.3);
+        border-radius: 4px;
+        transition: background 0.3s ease;
     }
+
+        .chat-window::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
+        }
 
     /* Responsive */
     @@media (max-width: 768px) {
@@ -333,6 +439,13 @@
 
     .message-bubble {
         max-width: 85%;
+    }
+
+    .scroll-to-bottom {
+        bottom: 90px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
     }
 
     }
@@ -409,6 +522,12 @@
                             }
                         </div>
 
+                        <!-- Scroll to bottom button -->
+                        <button class="scroll-to-bottom" id="scrollToBottomBtn" onclick="scrollToBottom()">
+                            <i class="bi bi-arrow-down"></i>
+                            <div class="unread-indicator" id="unreadIndicator">0</div>
+                        </button>
+
                         <div class="chat-input-container">
                             <div class="chat-input-group">
                                 <input type="text" id="messageInput" class="chat-input"
@@ -442,6 +561,95 @@
     <script>
         const userId = "@currentUserId";
         const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+        let unreadCount = 0;
+        let isAtBottom = true;
+
+        // Enhanced scroll functions
+        function scrollToBottom(smooth = true) {
+            const chatWindow = document.getElementById("chatWindow");
+            if (chatWindow) {
+                if (smooth) {
+                    chatWindow.scrollTo({
+                        top: chatWindow.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }
+                setTimeout(() => {
+                    hideScrollButton();
+                    resetUnreadCount();
+                }, 100);
+            }
+        }
+
+        function isScrolledToBottom() {
+            const chatWindow = document.getElementById("chatWindow");
+            if (!chatWindow) return true;
+            const threshold = 50; // Ngưỡng 50px từ cuối
+            return (chatWindow.scrollHeight - chatWindow.clientHeight - chatWindow.scrollTop) <= threshold;
+        }
+
+        function showScrollButton() {
+            const scrollBtn = document.getElementById("scrollToBottomBtn");
+            if (scrollBtn) {
+                scrollBtn.classList.add("show");
+            }
+        }
+
+        function hideScrollButton() {
+            const scrollBtn = document.getElementById("scrollToBottomBtn");
+            if (scrollBtn) {
+                scrollBtn.classList.remove("show");
+            }
+        }
+
+        function updateUnreadCount() {
+            unreadCount++;
+            const indicator = document.getElementById("unreadIndicator");
+            if (indicator) {
+                indicator.textContent = unreadCount;
+                indicator.classList.add("show");
+            }
+        }
+
+        function resetUnreadCount() {
+            unreadCount = 0;
+            const indicator = document.getElementById("unreadIndicator");
+            if (indicator) {
+                indicator.classList.remove("show");
+            }
+        }
+
+        // Monitor scroll position with debouncing
+        function setupScrollMonitoring() {
+            const chatWindow = document.getElementById("chatWindow");
+            if (!chatWindow) return;
+
+            let scrollTimeout;
+            chatWindow.addEventListener('scroll', function() {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    isAtBottom = isScrolledToBottom();
+
+                    if (isAtBottom) {
+                        hideScrollButton();
+                        resetUnreadCount();
+                    } else {
+                        if (unreadCount > 0) {
+                            showScrollButton();
+                        }
+                    }
+                }, 100);
+            });
+
+            // Force initial check
+            setTimeout(() => {
+                console.log("Chat window height:", chatWindow.scrollHeight);
+                console.log("Chat window client height:", chatWindow.clientHeight);
+                scrollToBottom(false);
+            }, 500);
+        }
 
         connection.on("ReceiveMessage", function (senderId, senderName, message) {
             const chatWindow = document.getElementById("chatWindow");
@@ -461,10 +669,23 @@
             `;
 
             chatWindow.appendChild(msgDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            // Check if user is at bottom before deciding to scroll
+            if (isAtBottom || senderId === "@selfId") {
+                scrollToBottom();
+            } else {
+                // Show scroll button and update unread count for other users' messages
+                if (senderId !== "@selfId") {
+                    updateUnreadCount();
+                    showScrollButton();
+                }
+            }
         });
 
-        connection.start();
+        connection.start().then(function() {
+            console.log("SignalR Connected");
+            setupScrollMonitoring();
+        });
 
         function sendMessage() {
             const messageInput = document.getElementById("messageInput");
@@ -474,20 +695,66 @@
                 connection.invoke("SendMessage", userId, message)
                     .catch(err => console.error(err.toString()));
                 messageInput.value = "";
+
+                // Always scroll to bottom when sending a message
+                setTimeout(() => scrollToBottom(), 100);
             }
         }
 
-        // Gửi tin nhắn khi nhấn Enter
+        // Enhanced keyboard handling
         document.getElementById("messageInput").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
                 sendMessage();
             }
         });
 
-        // Auto scroll to bottom
-        const chatWindow = document.getElementById("chatWindow");
-        if (chatWindow) {
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
+        // Keyboard shortcuts for scroll
+        document.addEventListener("keydown", function(e) {
+            const chatWindow = document.getElementById("chatWindow");
+            if (!chatWindow) return;
+
+            // Ctrl + End: Scroll to bottom
+            if (e.ctrlKey && e.key === "End") {
+                e.preventDefault();
+                scrollToBottom();
+            }
+
+            // Ctrl + Home: Scroll to top
+            if (e.ctrlKey && e.key === "Home") {
+                e.preventDefault();
+                chatWindow.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // Initialize scroll position và debug
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("DOM loaded, setting up scroll...");
+            setTimeout(() => {
+                const chatWindow = document.getElementById("chatWindow");
+                if (chatWindow) {
+                    console.log("Chat window found, scrolling to bottom...");
+                    scrollToBottom(false);
+                    setupScrollMonitoring();
+                } else {
+                    console.log("Chat window not found!");
+                }
+            }, 300);
+        });
+
+        // Auto scroll to bottom on page load
+        window.addEventListener("load", function() {
+            console.log("Window loaded");
+            setTimeout(() => {
+                const chatWindow = document.getElementById("chatWindow");
+                if (chatWindow) {
+                    console.log("Final scroll to bottom on load");
+                    scrollToBottom(false);
+                }
+            }, 500);
+        });
     </script>
 }
