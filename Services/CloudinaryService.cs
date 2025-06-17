@@ -73,38 +73,11 @@ namespace VAYTIEN.Services
 
             try
             {
-                // PublicId thường là phần cuối của URL sau /upload/ hoặc /v.../
-                // Ví dụ: nếu URL là https://res.cloudinary.com/your_cloud_name/image/upload/v12345/folder/image_name.png
-                // thì publicId là folder/image_name
-                // QuestPDF.GeneratePaymentReceiptPdf trả về full path, bạn cần parse publicId từ đó.
-
-                // Để lấy publicId từ SecureUrl: Cần Cloudinary URL Parser hoặc đơn giản là cắt chuỗi.
-                // Nếu URL có dạng .../upload/publicId.ext thì publicId là phần sau /upload/
-                var parts = publicId.Split(new[] { "/upload/" }, StringSplitOptions.None);
-                if (parts.Length > 1)
-                {
-                    string fullPublicId = parts[1];
-                    // Loại bỏ phần mở rộng .ext và version number (v12345/) nếu có
-                    int lastDotIndex = fullPublicId.LastIndexOf('.');
-                    if (lastDotIndex != -1)
-                    {
-                        fullPublicId = fullPublicId.Substring(0, lastDotIndex);
-                    }
-                    if (fullPublicId.Contains("/v")) // Remove version (e.g., v12345/)
-                    {
-                        fullPublicId = fullPublicId.Substring(fullPublicId.LastIndexOf('/') + 1);
-                    }
-                    else if (fullPublicId.Contains("vaytien_app_uploads/")) // remove folder name
-                    {
-                        fullPublicId = fullPublicId.Replace("vaytien_app_uploads/", "");
-                    }
-                    publicId = fullPublicId;
-                }
-                else
-                {
-                    _logger.LogWarning($"Could not parse publicId from URL: {publicId}. Assuming it's already a publicId.");
-                }
-
+                // Logic lấy publicId từ URL đã được CloudinaryService xử lý nội bộ hoặc từ Controller gọi
+                // Bạn cần đảm bảo publicId được truyền vào đây là chính xác
+                // Nếu publicId truyền vào đây vẫn là full URL, bạn sẽ cần logic phân tích nó ở đây hoặc đảm bảo caller đã parse nó.
+                // Dựa trên KhachHangController, bạn gọi ParsePublicIdFromCloudinaryUrl(newImageUrl) TRONG CONTROLLER.
+                // Vậy nên publicId truyền vào DeleteImageAsync NÊN LÀ ĐÚNG PublicId đã parse.
 
                 var deleteParams = new DeletionParams(publicId)
                 {
@@ -128,6 +101,48 @@ namespace VAYTIEN.Services
             {
                 _logger.LogError(ex, $"An error occurred while deleting image from Cloudinary: {publicId}.");
                 return false;
+            }
+        }
+
+        // BỔ SUNG DÒNG NÀY: TRIỂN KHAI PHƯƠNG THỨC ParsePublicIdFromCloudinaryUrl TỪ GIAO DIỆN ICloudinaryService
+        public string? ParsePublicIdFromCloudinaryUrl(string? imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl)) return null;
+
+            try
+            {
+                var uri = new Uri(imageUrl);
+                var path = uri.AbsolutePath; // Kết quả: /your_cloud_name/image/upload/v12345/folder/image_name.png
+
+                var uploadIndex = path.IndexOf("/upload/", StringComparison.OrdinalIgnoreCase);
+                if (uploadIndex == -1) return null;
+
+                var publicIdWithVersion = path.Substring(uploadIndex + "/upload/".Length);
+
+                // Loại bỏ phần version (nếu có, dạng v12345/)
+                var versionIndex = publicIdWithVersion.IndexOf("/v", StringComparison.OrdinalIgnoreCase);
+                if (versionIndex != -1 && (publicIdWithVersion.Length > versionIndex + 1 && Char.IsDigit(publicIdWithVersion[versionIndex + 1])))
+                {
+                    var nextSlashIndex = publicIdWithVersion.IndexOf('/', versionIndex + 1);
+                    if (nextSlashIndex != -1)
+                    {
+                        publicIdWithVersion = publicIdWithVersion.Substring(nextSlashIndex + 1);
+                    }
+                }
+
+                // Loại bỏ phần mở rộng file (.png, .jpg, ...)
+                var lastDotIndex = publicIdWithVersion.LastIndexOf('.');
+                if (lastDotIndex != -1)
+                {
+                    publicIdWithVersion = publicIdWithVersion.Substring(0, lastDotIndex);
+                }
+                _logger.LogDebug($"Parsed publicId from {imageUrl}: {publicIdWithVersion}");
+                return publicIdWithVersion;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to parse publicId from URL: {imageUrl}");
+                return null;
             }
         }
     }
